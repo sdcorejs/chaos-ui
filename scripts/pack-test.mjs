@@ -99,6 +99,7 @@ for (const name of [
           "./otp",
           "./loto-otp/register",
           "./infinity-otp/register",
+          "./volume-gym/register",
         ]
       : []),
   ]) {
@@ -117,12 +118,19 @@ for (const name of ['@sdcorejs/chaos-ui','@sdcorejs/chaos-ui-react','@sdcorejs/c
   for (const sub of ['', '/loto-otp','/infinity-otp','/volume-gym']) await import(name + sub);
   await assert.rejects(import(name + '/testing/probe'), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
 }
+const angularRoot = await import('@sdcorejs/chaos-ui-angular');
+const angularVolume = await import('@sdcorejs/chaos-ui-angular/volume-gym');
+assert.equal(angularRoot.ChaosVolumeGymComponent, angularVolume.ChaosVolumeGymComponent,
+  'Angular root and per-component entrypoint must share one class');
 const { registerLotoOtp } = await import('@sdcorejs/chaos-ui/loto-otp/register');
 assert.equal(registerLotoOtp(), false);
 assert.equal(globalThis.customElements?.get('chaos-loto-otp-element'), undefined);
 const { registerInfinityOtp } = await import('@sdcorejs/chaos-ui/infinity-otp/register');
 assert.equal(registerInfinityOtp(), false);
 assert.equal(globalThis.customElements?.get('chaos-infinity-otp-element'), undefined);
+const { registerVolumeGym } = await import('@sdcorejs/chaos-ui/volume-gym/register');
+assert.equal(registerVolumeGym(), false);
+assert.equal(globalThis.customElements?.get('chaos-volume-gym-element'), undefined);
 assert.equal(typeof document, 'undefined');
 console.log('Node imports and private export boundaries passed');`,
 );

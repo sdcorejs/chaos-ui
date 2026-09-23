@@ -62,15 +62,18 @@ test("gallery, demo completion, snippets and reduced motion", async ({
   );
   await page.getByRole("button", { name: /03 \/ SOUND WORKOUT/ }).click();
   await expect(page.getByText("Selected: Volume Gym")).toBeVisible();
-  const probe = page.locator("chaos-internal-probe").getByRole("button");
-  for (let n = 0; n < 3; n++) await probe.click();
-  await expect(probe).toContainText("Gloriously unnecessary");
+  const gym = page.locator("chaos-volume-gym-element");
+  const slider = gym.getByRole("slider", { name: "Âm lượng" });
+  await expect(slider).toHaveAttribute("aria-valuenow", "35");
+  for (let n = 0; n < 3; n++)
+    await gym.getByRole("button", { name: "Tăng âm lượng" }).click();
+  await expect(slider).toHaveAttribute("aria-valuenow", "38");
   await page.getByRole("button", { name: "Angular", exact: true }).click();
-  await expect(page.locator(".code pre")).toContainText("valueChange");
-  await page.getByRole("button", { name: /Reset experiment/ }).click();
-  await expect(probe).toContainText("0");
+  await expect(page.locator(".code pre")).toContainText("formControl");
+  await page.getByRole("button", { name: /Về mức 35/ }).click();
+  await expect(slider).toHaveAttribute("aria-valuenow", "35");
   expect(
-    await probe.evaluate((el) => getComputedStyle(el).transitionDuration),
+    await gym.locator(".weight").evaluate((el) => getComputedStyle(el).transitionDuration),
   ).toBe("0s");
   expect(
     await page.evaluate(

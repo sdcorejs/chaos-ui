@@ -1,5 +1,6 @@
 import { LotoExample } from "./loto-example";
 import { InfinityExample } from "./infinity-example";
+import { VolumeExample } from "./volume-example";
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import type { ChaosLotoOtpProps } from "@sdcorejs/chaos-ui-react/loto-otp";
@@ -14,6 +15,7 @@ function App() {
     <main className="example">
       <LotoExample />
       <InfinityExample />
+      <VolumeExample />
       <p className="eyebrow">CHAOS UI / REACT</p>
       <h1>
         One core.

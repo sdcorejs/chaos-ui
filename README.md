@@ -2,7 +2,7 @@
 
 **Simple tasks. Ridiculous interfaces.**
 
-A reusable UI collection that turns familiar interactions into mini games. Loto OTP and Infinity OTP are implemented with drag/drop, tap and keyboard entry, React controlled/uncontrolled wrappers and Angular model/Reactive Forms integration. Volume Gym remains on the roadmap. Nothing has been published to npm.
+A reusable UI collection that turns familiar interactions into mini games. Loto OTP, Infinity OTP and Volume Gym are implemented with Web Components, React controlled/uncontrolled wrappers and Angular model/Reactive Forms integration. Nothing has been published to npm.
 
 Try the [live playground](https://sdcorejs.github.io/chaos-ui/). GitHub Actions deploys it after a successful `main` CI run; npm packages are not published by this workflow.
 
@@ -18,7 +18,7 @@ pnpm dev:react     # React example: http://127.0.0.1:5174
 pnpm dev:angular   # Angular standalone example: http://127.0.0.1:4200
 ```
 
-The gallery includes working Loto OTP and Infinity OTP demos with visible sample messages, delayed host verification, sound toggle and reset. Read the [Loto OTP API](docs/loto-otp.md) and [Infinity OTP API](docs/infinity-otp.md). Both examples use public package imports; the original internal fixture remains isolated from npm exports.
+The gallery includes working Loto OTP and Infinity OTP demos with host verification, plus a Volume Gym demo with opt-in Play/Stop/Mute audio owned only by the playground. Read the [Loto OTP API](docs/loto-otp.md), [Infinity OTP API](docs/infinity-otp.md) and [Volume Gym API](docs/volume-gym.md). Both examples use public package imports; the original internal fixture remains isolated from npm exports.
 
 ## Structure
 
@@ -52,7 +52,7 @@ Read [architecture and exact support matrix](docs/architecture.md), [component a
 
 ## Roadmap
 
-- Implemented: Loto OTP and Infinity OTP, reusable digit supply, move/swap/remove, conventional input, controlled bindings, host verification and configurable styling.
-- Volume Gym: controlled volume interaction with click/tap alternatives and reduced motion.
+- Implemented: Loto OTP and Infinity OTP with reusable digit supplies, and Volume Gym with precise drag/keyboard control and optional elapsed-time gravity.
+- All three games have controlled bindings, framework examples, configurable styling and desktop/mobile browser coverage.
 - For each game: public registration entrypoint, documented props/events/parts, thin adapters, both examples, teardown and packed-consumer tests, desktop/mobile review.
 - Full SSR/hydration, additional framework versions and npm release automation require separate verification.
