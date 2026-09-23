@@ -1,0 +1,29 @@
+{
+  "name": "@sdcorejs/chaos-ui-angular",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "scripts": {
+    "build": "ng-packagr -p ng-package.json -c tsconfig.json"
+  },
+  "dependencies": {
+    "@sdcorejs/chaos-ui": "workspace:*",
+    "tslib": "2.8.1"
+  },
+  "peerDependencies": {
+    "@angular/core": "22.1.7",
+    "@angular/common": "22.1.7",
+    "rxjs": "7.8.2",
+    "@angular/forms": "22.1.7"
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sdcorejs/chaos-ui.git",
+    "directory": "packages/angular"
+  }
+}

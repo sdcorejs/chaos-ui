@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": [
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "examples/react/**/*.tsx",
+    "packages/*/testing/**/*.ts",
+    "packages/*/testing/**/*.tsx",
+    "tests/**/*.ts",
+    "*.config.ts"
+  ],
+  "exclude": ["**/dist/**", "**/node_modules/**", "packages/angular/testing/**"]
+}
