@@ -1,0 +1,60 @@
+{
+  "name": "@sdcorejs/chaos-ui",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./loto-otp": {
+      "types": "./dist/loto-otp.d.ts",
+      "import": "./dist/loto-otp.js"
+    },
+    "./infinity-otp": {
+      "types": "./dist/infinity-otp.d.ts",
+      "import": "./dist/infinity-otp.js"
+    },
+    "./volume-gym": {
+      "types": "./dist/volume-gym.d.ts",
+      "import": "./dist/volume-gym.js"
+    },
+    "./register": {
+      "types": "./dist/register.d.ts",
+      "import": "./dist/register.js"
+    },
+    "./otp": {
+      "import": "./dist/otp.js",
+      "types": "./dist/otp.d.ts"
+    },
+    "./loto-otp/register": {
+      "import": "./dist/loto-otp/register.js",
+      "types": "./dist/loto-otp/register.d.ts"
+    },
+    "./infinity-otp/register": {
+      "import": "./dist/infinity-otp/register.js",
+      "types": "./dist/infinity-otp/register.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "lit": "3.3.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sdcorejs/chaos-ui.git",
+    "directory": "packages/chaos-ui"
+  }
+}

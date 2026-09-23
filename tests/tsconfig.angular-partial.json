@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../.artifacts/angular-partial",
+    "rootDir": "..",
+    "declaration": true
+  },
+  "angularCompilerOptions": {
+    "compilationMode": "partial",
+    "strictTemplates": true
+  },
+  "files": ["../packages/angular/testing/probe.ts"]
+}

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "projects": {
+    "example": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "index": "index.html",
+            "tsConfig": "tsconfig.json",
+            "outputPath": "dist",
+            "styles": ["../../apps/playground/src/style.css"]
+          }
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "example:build"
+          }
+        }
+      }
+    }
+  }
+}

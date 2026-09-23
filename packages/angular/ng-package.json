@@ -1,0 +1,8 @@
+{
+  "dest": "dist",
+  "lib": {
+    "entryFile": "src/index.ts"
+  },
+  "allowedNonPeerDependencies": ["@sdcorejs/chaos-ui"],
+  "assets": ["README.md", "LICENSE"]
+}

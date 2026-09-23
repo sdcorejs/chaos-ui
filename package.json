@@ -1,0 +1,39 @@
+{
+  "name": "chaos-ui-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": "24.19.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @chaos-ui/playground dev",
+    "dev:react": "pnpm --filter @chaos-ui/example-react dev",
+    "dev:angular": "pnpm --filter @chaos-ui/example-angular dev",
+    "build:packages": "pnpm --filter @sdcorejs/chaos-ui build && pnpm --filter @sdcorejs/chaos-ui-react build && pnpm --filter @sdcorejs/chaos-ui-angular build",
+    "build": "pnpm build:packages && pnpm --filter @chaos-ui/playground build && pnpm --filter @chaos-ui/example-react build && pnpm --filter @chaos-ui/example-angular build",
+    "lint": "eslint .",
+    "typecheck": "pnpm build:packages && tsc --noEmit -p tsconfig.check.json && pnpm --filter @chaos-ui/example-angular typecheck",
+    "test": "vitest run && pnpm test:angular-partial",
+    "test:e2e": "playwright test",
+    "test:pack": "node scripts/pack-test.mjs",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm test:pack && pnpm test:e2e",
+    "test:angular-partial": "ngc -p tests/tsconfig.angular-partial.json && node scripts/check-partial.mjs"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "eslint": "10.11.0",
+    "typescript-eslint": "8.70.1",
+    "vitest": "4.1.11",
+    "@playwright/test": "1.63.0",
+    "@angular/compiler-cli": "22.1.7",
+    "@angular/compiler": "22.1.7",
+    "@angular/cli": "22.1.8",
+    "@angular/build": "22.1.8",
+    "ng-packagr": "22.1.1",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@types/node": "24.10.1"
+  }
+}
