@@ -1,7 +1,9 @@
-/** Controlled volume contract. No game is shipped yet.
- * @example const props: VolumeGymProps = { value: 40 };
- */
-export interface VolumeGymProps {
-  /** Volume percentage, 0–100; default 0. Application updates emit no user event. */
-  value?: number;
-}
+export { ChaosVolumeGymElement } from "./volume-gym/element.js";
+export { normalizeVolume } from "./volume-gym/math.js";
+export type {
+  ChaosVolumeGymProps,
+  VolumeGymProps,
+  VolumeChangeSource,
+  VolumeChangeDetail,
+  VolumeCommitDetail,
+} from "./volume-gym/types.js";

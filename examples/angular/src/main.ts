@@ -1,5 +1,6 @@
 import { LotoExample } from "./loto-example";
 import { InfinityExample } from "./infinity-example";
+import { VolumeExample } from "./volume-example";
 import { Component, signal } from "@angular/core";
 import { bootstrapApplication } from "@angular/platform-browser";
 import type { ChaosLotoOtpProps } from "@sdcorejs/chaos-ui-angular/loto-otp";
@@ -7,10 +8,11 @@ import { ChaosProbeAdapter } from "../../../packages/angular/testing/probe";
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [ChaosProbeAdapter, LotoExample, InfinityExample],
+  imports: [ChaosProbeAdapter, LotoExample, InfinityExample, VolumeExample],
   template: `<main class="example">
     <loto-example />
     <infinity-example />
+    <volume-example />
     <p class="eyebrow">CHAOS UI / ANGULAR</p>
     <h1>One core.<br />A little chaos.</h1>
     <p>Internal build-pipeline fixture (not public API).</p>

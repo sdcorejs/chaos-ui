@@ -39,3 +39,16 @@ assert(
   "Public Infinity wrapper must not be fully compiled",
 );
 console.log("Public Angular Infinity partial compilation verified");
+const volumeOutput = readFileSync(
+  "packages/angular/dist/fesm2022/sdcorejs-chaos-ui-angular-volume-gym.mjs",
+  "utf8",
+);
+assert(
+  volumeOutput.includes("ɵɵngDeclareComponent"),
+  "Public Volume Gym wrapper must be partially compiled",
+);
+assert(
+  !volumeOutput.includes("ɵɵdefineComponent("),
+  "Public Volume Gym wrapper must not be fully compiled",
+);
+console.log("Public Angular Volume Gym partial compilation verified");

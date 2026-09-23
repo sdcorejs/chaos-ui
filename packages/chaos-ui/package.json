@@ -36,6 +36,10 @@
     "./infinity-otp/register": {
       "import": "./dist/infinity-otp/register.js",
       "types": "./dist/infinity-otp/register.d.ts"
+    },
+    "./volume-gym/register": {
+      "import": "./dist/volume-gym/register.js",
+      "types": "./dist/volume-gym/register.d.ts"
     }
   },
   "files": [

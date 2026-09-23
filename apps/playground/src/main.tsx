@@ -1,10 +1,11 @@
 import lotoDocumentation from "../../../docs/loto-otp.md?raw";
 import { LotoDemo } from "./LotoDemo";
 import { InfinityDemo } from "./InfinityDemo";
+import { VolumeDemo } from "./VolumeDemo";
 import infinityDocumentation from "../../../docs/infinity-otp.md?raw";
+import volumeDocumentation from "../../../docs/volume-gym.md?raw";
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { ChaosProbeAdapter } from "../../../packages/react/testing/probe";
 import "./style.css";
 import architecture from "../../../docs/architecture.md?raw";
 import authoring from "../../../docs/component-authoring.md?raw";
@@ -62,13 +63,12 @@ function Illustration({ kind }: { kind: string }) {
 }
 function App() {
   const [selected, setSelected] = useState(0);
-  const [value, setValue] = useState(0);
   const [framework, setFramework] = useState<"React" | "Angular">("React");
   const game = games[selected]!;
-  const code =
+  const volumeCode =
     framework === "React"
-      ? `// Internal fixture — repository use only\nconst [value, setValue] = useState(0);\n\n<ChaosProbeAdapter\n  value={value}\n  onChaosChange={event =>\n    setValue(event.detail.value)}\n/>`
-      : `<!-- Internal fixture — repository use only -->\n<chaos-probe-adapter\n  [value]="value()"\n  (valueChange)="value.set($event)"\n/>`;
+      ? `import { VolumeGym } from "@sdcorejs/chaos-ui-react/volume-gym";\n\n<VolumeGym\n  value={volume}\n  gravity={gravity}\n  onChange={({ value }) => setVolume(value)}\n  onCommit={({ value }) => save(value)}\n/>`
+      : `// imports: [ReactiveFormsModule, ChaosVolumeGymComponent]\ncontrol = new FormControl(35, { nonNullable: true });\n\n<chaos-volume-gym\n  [formControl]="control"\n  [gravity]="gravity()"\n  (sdCommit)="save($event.value)"\n/>`;
   return (
     <>
       <header>
@@ -130,7 +130,7 @@ function App() {
               >
                 <div className="card-art">
                   <span className="status">
-                    {index < 2 ? "PLAY NOW" : "IN DEVELOPMENT"}
+                    PLAY NOW
                   </span>
                   <Illustration kind={item.icon} />
                 </div>
@@ -153,39 +153,13 @@ function App() {
             </h2>
             <p>Selected: {game.name}</p>
           </div>
-          <div className={`bench ${selected < 2 ? "loto-bench" : ""}`}>
+          <div className="bench loto-bench">
             {selected === 0 ? (
               <LotoDemo />
             ) : selected === 1 ? (
               <InfinityDemo />
             ) : (
-              <>
-                <div className="demo">
-                  <p className="eyebrow">FOUNDATION PREVIEW</p>
-                  <h3>
-                    A tiny nudge.
-                    <br />A working connection.
-                  </h3>
-                  <p>
-                    {game.name} is on the roadmap. This internal fixture
-                    verifies the shared core and framework adapters.
-                  </p>
-                  <div className="probe-stage">
-                    <ChaosProbeAdapter
-                      value={value}
-                      onChaosChange={(event) => setValue(event.detail.value)}
-                    />
-                  </div>
-                  <p className="demo-note" aria-live="polite">
-                    {value >= 3
-                      ? "Mission accomplished. Was it worth it? Absolutely."
-                      : "Click, tap, or focus and press Enter. Try three nudges."}
-                  </p>
-                  <button className="text-button" onClick={() => setValue(0)}>
-                    Reset experiment ↺
-                  </button>
-                </div>
-              </>
+              <VolumeDemo />
             )}
             <div className="code">
               <div
@@ -202,7 +176,7 @@ function App() {
                     {f}
                   </button>
                 ))}
-                <span>{selected < 2 ? "PUBLIC API" : "INTERNAL EXAMPLE"}</span>
+                <span>PUBLIC API</span>
               </div>
               <pre>
                 <code>
@@ -214,7 +188,7 @@ function App() {
                       ? framework === "React"
                         ? `import { InfinityOtp } from "@sdcorejs/chaos-ui-react/infinity-otp";\n\n<InfinityOtp\n  slots={slots}\n  onChange={({ slots }) => setSlots(slots)}\n  status={status}\n  onSubmit={({ value }) => verify(value)}\n/>`
                         : `// imports: [ReactiveFormsModule, ChaosInfinityOtpComponent]\ncontrol = new FormControl<OtpSlots>([], { nonNullable: true });\n\n<chaos-infinity-otp\n  [formControl]="control"\n  [status]="status()"\n  (sdSubmit)="verify($event.value)"\n/>`
-                      : code}
+                      : volumeCode}
                 </code>
               </pre>
               <p>Client-side interaction · Typed events · One shared core</p>
@@ -238,6 +212,7 @@ function App() {
             {[
               ["Loto OTP · API & examples", lotoDocumentation],
               ["Infinity OTP · API & examples", infinityDocumentation],
+              ["Volume Gym · API & examples", volumeDocumentation],
               ["Architecture & support", architecture],
               ["Author a component", authoring],
               ["Packaging & release", release],
@@ -248,7 +223,7 @@ function App() {
               </details>
             ))}
             <p>
-              Loto OTP and Infinity OTP are ready to try. npm packages have not
+              Loto OTP, Infinity OTP and Volume Gym are ready to try. npm packages have not
               been published.
             </p>
           </div>

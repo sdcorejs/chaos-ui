@@ -622,6 +622,91 @@ footer > span {
   min-width: 0;
   background: #f8f2e8;
 }
+.volume-demo {
+  padding: 24px;
+  min-width: 0;
+  background: #f3f7eb;
+}
+.volume-intro {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 19px;
+  padding: 17px 20px;
+  border: 1px solid #c4d4bb;
+  border-radius: 17px;
+  background: #e7f0d8;
+}
+.volume-intro-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #18362d;
+  color: #dcfa78;
+  font-size: 26px;
+  font-weight: 900;
+}
+.volume-intro small {
+  font: 10px monospace;
+  letter-spacing: 1px;
+}
+.volume-intro p {
+  margin: 3px 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+.volume-intro div > span { font-size: 11px; color: #59705c; }
+.volume-demo-controls,
+.audio-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+}
+.volume-demo-controls { margin-top: 22px; }
+.volume-demo-controls button,
+.audio-actions button {
+  border: 1px solid #9eaf96;
+  border-radius: 23px;
+  min-height: 41px;
+  padding: 8px 14px;
+  background: #fffdf5;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+.volume-demo-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 41px;
+  padding: 0 12px;
+  border: 1px solid #9eaf96;
+  border-radius: 23px;
+  font-size: 12px;
+}
+.audio-preview {
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid #a5b79a;
+  border-radius: 17px;
+  background: #e4f0d2;
+}
+.audio-preview > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.audio-preview strong { font: 800 11px monospace; letter-spacing: 1px; }
+.audio-preview span { font-size: 11px; color: #4c6957; }
+.audio-actions { margin-top: 13px; }
+.audio-actions button:first-child { background: #d8ff66; border-color: #274335; }
+.audio-actions button[aria-pressed="true"] { background: #223d33; color: white; }
+.audio-actions button:disabled { opacity: .48; cursor: not-allowed; }
+.audio-preview p { margin: 11px 0 0; font-size: 11px; color: #45604c; }
 .infinity-message {
   display: flex;
   gap: 16px;
