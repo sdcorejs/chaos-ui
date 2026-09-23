@@ -125,24 +125,45 @@ export const infinityStyles = css`
     background: radial-gradient(circle, #f5de8daa, transparent 65%);
   }
   .gauntlet {
-    position: relative;
+    position: absolute;
     z-index: 2;
+    inset: 0;
     pointer-events: none;
+    overflow: hidden;
+    filter: drop-shadow(0 15px 13px #070916aa) drop-shadow(0 0 17px #efc26844);
+  }
+  .glove-frame {
+    position: absolute;
+    inset: 0 auto auto 0;
     display: block;
     width: 100%;
-    height: 100%;
-    overflow: visible;
-    filter: drop-shadow(0 22px 16px #070916df) drop-shadow(0 0 18px #efc26844);
+    height: auto;
+    user-select: none;
+  }
+  .glove-contact,
+  .glove-release {
+    opacity: 0;
+  }
+  .snap-flash {
+    position: absolute;
+    left: 72%;
+    top: 19%;
+    width: 20%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fffef0 0, #ffe49c 14%, #f4c87855 39%, transparent 70%);
+    opacity: 0;
+    pointer-events: none;
   }
   .titan {
     position: absolute;
     z-index: 1;
-    left: -1%;
-    top: 4%;
-    width: 32%;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     overflow: visible;
     pointer-events: none;
-    filter: drop-shadow(0 11px 14px #090a1caa);
+    filter: drop-shadow(0 16px 15px #090a1caa);
   }
   .titan .surprised-mouth {
     opacity: 0;
@@ -157,25 +178,31 @@ export const infinityStyles = css`
     transform-origin: center;
   }
   .error .titan {
-    animation: titan-recoil 820ms cubic-bezier(.18,.78,.3,1.3) 1 both;
+    animation: titan-recoil 1.15s cubic-bezier(.18,.78,.3,1.3) 1 both;
   }
   .error .titan .brow-left {
     transform: translate(-2px, -12px) rotate(-8deg);
+    transition-delay: .58s;
   }
   .error .titan .brow-right {
     transform: translate(2px, -12px) rotate(8deg);
+    transition-delay: .58s;
   }
   .error .titan .eye {
     transform: scaleY(1.38);
+    transition-delay: .58s;
   }
   .error .titan .pupil {
     transform: translateY(-3px) scale(.8);
+    transition-delay: .58s;
   }
   .error .titan .smile {
     opacity: 0;
+    transition-delay: .58s;
   }
   .error .titan .surprised-mouth {
     opacity: 1;
+    transition-delay: .58s;
   }
   .failed-snap {
     position: absolute;
@@ -191,151 +218,38 @@ export const infinityStyles = css`
     font: 900 clamp(13px, 3cqi, 21px)/1 system-ui;
     letter-spacing: .03em;
     transform: rotate(6deg);
-    animation: failure-pop 650ms cubic-bezier(.18,1.3,.35,1) 1 both;
+    animation: failure-pop 650ms cubic-bezier(.18,1.3,.35,1) .6s 1 both;
   }
-  .orbit ellipse {
-    stroke: #c4a77c;
-    stroke-width: 1.4;
-    stroke-dasharray: 3 12;
-    opacity: 0.48;
+  .success .glove-contact,
+  .error .glove-contact {
+    animation: contact-frame 1.15s steps(1, end) 1 both;
   }
-  .orbit path {
-    stroke: #b487bc;
-    stroke-width: 1.2;
-    opacity: 0.21;
+  .success .glove-open,
+  .error .glove-open {
+    animation: open-frame 1.15s steps(1, end) 1 both;
   }
-  .arm-shadow {
-    fill: #080d20;
-    stroke: #070916;
-    stroke-width: 11;
+  .success .glove-release,
+  .error .glove-release {
+    animation: release-frame 1.15s steps(1, end) 1 both;
   }
-  .arm {
-    fill: url(#infinity-brass);
-    stroke: #161629;
-    stroke-width: 7;
-  }
-  .arm-panel {
-    fill: url(#infinity-armor);
-    stroke: #d4af74;
-    stroke-width: 3;
-  }
-  .arm-etch {
-    fill: none;
-    stroke: #d5b878;
-    stroke-width: 3;
-    opacity: 0.65;
-  }
-  .finger,
-  .thumb {
-    fill: url(#infinity-brass);
-    stroke: #171729;
-    stroke-width: 6;
-    stroke-linejoin: round;
-  }
-  .finger-plate,
-  .thumb-plate {
-    fill: url(#infinity-plate);
-    stroke: #e0bd82;
-    stroke-width: 2.5;
-    stroke-linejoin: round;
-  }
-  .finger-seam,
-  .thumb-seam {
-    fill: none;
-    stroke: #e3c688;
-    stroke-width: 4;
-    stroke-linecap: round;
-    opacity: 0.82;
-  }
-  .finger-glint {
-    fill: none;
-    stroke: #fce6b4;
-    stroke-width: 4;
-    stroke-linecap: round;
-    opacity: 0.82;
-  }
-  .palm {
-    fill: url(#infinity-brass);
-    stroke: #151626;
-    stroke-width: 8;
-    stroke-linejoin: round;
-  }
-  .palm-rim {
-    fill: #11182e;
-    stroke: #d0a463;
-    stroke-width: 3;
-    stroke-linejoin: round;
-  }
-  .palm-panel {
-    fill: url(#infinity-armor);
-    stroke: #8e765a;
-    stroke-width: 2.5;
-    stroke-linejoin: round;
-  }
-  .palm-etch {
-    fill: none;
-    stroke: #d1b789;
-    stroke-width: 2.5;
-    opacity: 0.66;
-    stroke-linecap: round;
-  }
-  .palm-shine,
-  .cuff-shine {
-    fill: none;
-    stroke: #fff1bf;
-    stroke-width: 3;
-    stroke-linecap: round;
-    opacity: .85;
-  }
-  .palm-glyph {
-    fill: url(#infinity-glyph-gradient);
-    fill-rule: evenodd;
-    stroke: #d1b179;
-    stroke-width: 2;
-    opacity: 0.92;
-  }
-  .cuff {
-    fill: url(#infinity-brass);
-    stroke: #141425;
-    stroke-width: 6;
-  }
-  .cuff-panel {
-    fill: url(#infinity-armor);
-    stroke: #e0bd7e;
-    stroke-width: 2.5;
-  }
-  .cuff-detail {
-    fill: none;
-    stroke: #e4c182;
-    stroke-width: 3;
-    stroke-linecap: round;
-    opacity: 0.76;
-  }
-  .rivet {
-    fill: #f5d598;
-    stroke: #483d3d;
-    stroke-width: 2;
-  }
-  .snap-fingers {
-    transform-origin: 50% 60%;
-  }
-  .success .snap-fingers {
-    animation: snap 0.68s cubic-bezier(0.15, 0.9, 0.3, 1) 1 both;
-  }
-  .error .snap-fingers {
-    animation: snap-fail .72s cubic-bezier(.16,.9,.25,1) 1 both;
+  .success .snap-flash {
+    animation: contact-flash 1.15s ease-out 1 both;
   }
   .success .gauntlet,
   .success .sockets {
-    animation: ash-away 2.4s ease-out 1 both;
+    animation: ash-away 2.4s ease-out .4s 1 both;
   }
   .success .pool {
-    animation: ash-away 2.4s ease-out .14s 1 both;
+    animation: ash-away 2.4s ease-out .54s 1 both;
   }
   .sockets {
     position: absolute;
     z-index: 4;
     inset: 0;
+  }
+  .success .socket-wrap,
+  .error .socket-wrap {
+    animation: reveal-hand 1.15s ease-in-out 1 both;
   }
   .socket-wrap {
     position: absolute;
@@ -346,33 +260,33 @@ export const infinityStyles = css`
     height: var(--socket-size);
   }
   .pos-1 {
-    left: 36%;
-    top: 33%;
+    left: 41%;
+    top: 31%;
     --gem: #70d8d4;
   }
   .pos-2 {
-    left: 51%;
-    top: 22%;
+    left: 55%;
+    top: 28%;
     --gem: #e3a6ff;
   }
   .pos-3 {
-    left: 66%;
-    top: 32%;
+    left: 69%;
+    top: 31%;
     --gem: #e89abb;
   }
   .pos-4 {
-    left: 80%;
-    top: 46%;
+    left: 79%;
+    top: 39%;
     --gem: #9ee4a4;
   }
   .pos-5 {
-    left: 17%;
-    top: 59%;
+    left: 21%;
+    top: 52%;
     --gem: #f3b37a;
   }
   .pos-6 {
-    left: 52%;
-    top: 70%;
+    left: 56%;
+    top: 55%;
     --gem: #f1d680;
   }
   .order {
@@ -397,9 +311,9 @@ export const infinityStyles = css`
     display: grid;
     place-items: center;
     padding: 0;
-    border-radius: 14px;
+    border-radius: 50%;
     border: 2px solid #f2d9a2;
-    background: radial-gradient(circle at 29% 20%, #5e536d, #151b32 68%);
+    background: radial-gradient(circle at 32% 27%, #5e536d, #151b32 68%);
     color: #fffbea;
     box-shadow:
       0 5px 0 #17172b,
@@ -413,17 +327,12 @@ export const infinityStyles = css`
     position: absolute;
     inset: 5px;
     border: 1px solid #ffffff80;
-    border-radius: 9px;
+    border-radius: 50%;
     pointer-events: none;
   }
   .socket.filled {
-    background: radial-gradient(
-      circle at 27% 22%,
-      #ffffff,
-      var(--gem) 30%,
-      color-mix(in srgb, var(--gem), #1c2445 46%) 80%
-    );
-    color: #111827;
+    background: radial-gradient(circle at 25% 19%, #eed5aa, #40334c 69%);
+    color: #fffef0;
     box-shadow:
       0 5px 0 #17172b,
       0 0 0 4px #8b6949,
@@ -438,8 +347,22 @@ export const infinityStyles = css`
     position: relative;
     z-index: 2;
     font: 900 clamp(21px, 5vw, 30px)/1 system-ui;
-    text-shadow: 0 1px #fff9;
+    text-shadow: 0 2px 3px #151022, 0 0 8px #171329;
   }
+  .gem-art {
+    position: absolute;
+    inset: 5%;
+    width: 90%;
+    height: 90%;
+    overflow: visible;
+    filter: drop-shadow(0 4px 3px #080b19a8);
+  }
+  .gem-shadow { fill: #121528; opacity: .8; }
+  .gem-core { fill: var(--gem, #cbb4e7); stroke: #fff3da; stroke-width: 1.3; }
+  .gem-light { fill: #fff; opacity: .5; }
+  .gem-facet { fill: #17182e; opacity: .27; }
+  .gem-line { fill: none; stroke: #fff; stroke-width: 1.4; opacity: .58; }
+  .gem-glint { fill: none; stroke: #fff; stroke-width: 2.4; stroke-linecap: round; opacity: .82; }
   .gem-shape {
     position: absolute;
     right: 5px;
@@ -477,14 +400,12 @@ export const infinityStyles = css`
     min-width: 0;
     aspect-ratio: 1;
     min-height: var(--stone-size);
-    border: 2px solid #edcf9b;
-    border-radius: 17px;
-    color: #151825;
-    background: linear-gradient(145deg, #fff9e7, #b8a5df 48%, #7688ae);
-    box-shadow:
-      inset 2px 2px #fff9,
-      0 5px 0 #0b0d19,
-      0 7px 9px #0007;
+    border: 0;
+    border-radius: 50%;
+    color: #fffef0;
+    background: transparent;
+    --gem: #baa6e4;
+    filter: drop-shadow(0 6px 5px #030512b8);
     touch-action: none;
     user-select: none;
   }
@@ -495,12 +416,7 @@ export const infinityStyles = css`
     position: relative;
     z-index: 1;
     font: 900 23px/1 system-ui;
-  }
-  .source-shape {
-    position: absolute;
-    font-size: 35px;
-    color: #ffffff75;
-    transform: rotate(20deg);
+    text-shadow: 0 2px 3px #16102b, 0 0 7px #16102b;
   }
   .hint {
     min-height: 37px;
@@ -630,28 +546,35 @@ export const infinityStyles = css`
   .no-motion.success .halo {
     opacity: 1;
   }
-  @keyframes snap {
-    0%,
-    100% {
-      transform: rotate(0);
-    }
-    35% {
-      transform: rotate(-11deg) translate(-6px, 7px);
-    }
-    58% {
-      transform: rotate(5deg);
-    }
+  @keyframes contact-frame {
+    0%, 17% { opacity: 0; }
+    18%, 51% { opacity: 1; }
+    52%, 100% { opacity: 0; }
   }
-  @keyframes snap-fail {
-    0%, 100% { transform: rotate(0); }
-    35% { transform: rotate(-13deg) translate(-5px, 8px); }
-    58% { transform: rotate(2deg) translate(2px, -1px); }
-    72% { transform: rotate(-3deg); }
+  @keyframes open-frame {
+    0%, 17% { opacity: 1; }
+    18%, 83% { opacity: 0; }
+    84%, 100% { opacity: 1; }
+  }
+  @keyframes release-frame {
+    0%, 51% { opacity: 0; }
+    52%, 83% { opacity: 1; }
+    84%, 100% { opacity: 0; }
+  }
+  @keyframes contact-flash {
+    0%, 49% { opacity: 0; transform: scale(.1); }
+    53% { opacity: 1; transform: scale(1.5); }
+    72%, 100% { opacity: 0; transform: scale(3); }
+  }
+  @keyframes reveal-hand {
+    0%, 14% { opacity: 1; }
+    22%, 78% { opacity: 0; }
+    100% { opacity: 1; }
   }
   @keyframes titan-recoil {
-    0%, 30% { transform: translate(0, 0) scale(1); }
-    58% { transform: translate(-8px, -12px) scale(1.13) rotate(-7deg); }
-    100% { transform: translate(-3px, -5px) scale(1.07) rotate(-3deg); }
+    0%, 51% { transform: translate(0, 0) scale(1); }
+    66% { transform: translate(-11px, -10px) scale(1.04) rotate(-3deg); }
+    100% { transform: translate(-3px, -4px) scale(1.02) rotate(-1deg); }
   }
   @keyframes failure-pop {
     from { opacity: 0; transform: translateY(20px) scale(.5) rotate(-12deg); }

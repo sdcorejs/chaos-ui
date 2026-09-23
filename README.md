@@ -18,7 +18,7 @@ pnpm dev:react     # React example: http://127.0.0.1:5174
 pnpm dev:angular   # Angular standalone example: http://127.0.0.1:4200
 ```
 
-The gallery includes working Loto OTP and Infinity OTP demos with host verification, plus a Volume Gym demo with opt-in Play/Stop/Mute audio owned only by the playground. Read the [Loto OTP API](docs/loto-otp.md), [Infinity OTP API](docs/infinity-otp.md) and [Volume Gym API](docs/volume-gym.md). Both examples use public package imports; the original internal fixture remains isolated from npm exports.
+The gallery includes working Loto OTP and Infinity OTP demos with host verification, plus a Volume Gym demo with opt-in Play/Stop/Mute audio owned only by the playground. Infinity OTP ships its own detailed glove frames for a visible finger-contact/release snap and SVG-cut stones; no external media is loaded. Read the [Loto OTP API](docs/loto-otp.md), [Infinity OTP API](docs/infinity-otp.md) and [Volume Gym API](docs/volume-gym.md). Both examples use public package imports; the original internal fixture remains isolated from npm exports.
 
 ## Structure
 
