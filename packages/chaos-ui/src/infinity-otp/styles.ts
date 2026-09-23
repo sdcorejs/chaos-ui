@@ -155,85 +155,81 @@ export const infinityStyles = css`
     opacity: 0;
     pointer-events: none;
   }
-  .titan {
-    position: absolute;
-    z-index: 1;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    pointer-events: none;
-    filter: drop-shadow(0 16px 15px #090a1caa);
+  .snapping .gauntlet {
+    transform-origin: 58% 75%;
+    animation: snap-camera 2.1s cubic-bezier(.32,.02,.25,1) 1 both;
   }
-  .titan .surprised-mouth {
-    opacity: 0;
+  .snapping .glove-open {
+    animation: open-frame 2.1s steps(1, end) 1 both;
   }
-  .titan .eye,
-  .titan .pupil,
-  .titan .brow,
-  .titan .smile,
-  .titan .surprised-mouth {
-    transition: transform 180ms ease, opacity 180ms ease;
-    transform-box: fill-box;
-    transform-origin: center;
+  .snapping .glove-contact {
+    animation: contact-frame 2.1s steps(1, end) 1 both;
   }
-  .error .titan {
-    animation: titan-recoil 1.15s cubic-bezier(.18,.78,.3,1.3) 1 both;
+  .snapping .glove-release {
+    animation: release-frame 2.1s steps(1, end) 1 both;
   }
-  .error .titan .brow-left {
-    transform: translate(-2px, -12px) rotate(-8deg);
-    transition-delay: .58s;
+  .snapping .socket-wrap {
+    animation: reveal-hand 2.1s ease-in-out 1 both;
   }
-  .error .titan .brow-right {
-    transform: translate(2px, -12px) rotate(8deg);
-    transition-delay: .58s;
-  }
-  .error .titan .eye {
-    transform: scaleY(1.38);
-    transition-delay: .58s;
-  }
-  .error .titan .pupil {
-    transform: translateY(-3px) scale(.8);
-    transition-delay: .58s;
-  }
-  .error .titan .smile {
-    opacity: 0;
-    transition-delay: .58s;
-  }
-  .error .titan .surprised-mouth {
-    opacity: 1;
-    transition-delay: .58s;
-  }
-  .failed-snap {
+  .snap-impact {
     position: absolute;
     z-index: 5;
-    top: 13%;
-    right: 0;
+    left: 76%;
+    top: 21%;
+    width: 16%;
+    aspect-ratio: 1;
+    border: 3px solid #fff3c9;
+    border-radius: 50%;
+    box-shadow: 0 0 18px #f5cb8b, inset 0 0 22px #f5cb8b;
+    pointer-events: none;
+    opacity: 0;
+    animation: snap-impact 2.1s ease-out 1 both;
+  }
+  .snap-caption {
+    position: absolute;
+    z-index: 6;
+    right: 12%;
+    top: 7%;
+    color: #fff8dd;
+    font: 1000 clamp(20px, 5vw, 34px)/1 system-ui;
+    letter-spacing: .08em;
+    text-shadow: 0 3px 0 #452d59, 0 0 20px #ffde93;
+    transform: rotate(8deg);
+    pointer-events: none;
+    opacity: 0;
+    animation: snap-letter 2.1s ease-out 1 both;
+  }
+  .failed-reaction {
+    position: absolute;
+    z-index: 6;
+    right: 1%;
+    bottom: 14%;
+    width: min(27%, 122px);
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    pointer-events: none;
+    animation: failure-pop 550ms cubic-bezier(.18,1.3,.35,1) 1 both;
+  }
+  .failed-emoji {
+    width: min(100%, 98px);
+    height: auto;
+    filter: drop-shadow(0 8px 10px #080916bb);
+  }
+  .failed-snap {
     padding: 8px 12px;
     border: 2px solid #ffbfcc;
-    border-radius: 14px 14px 14px 3px;
+    border-radius: 13px;
     background: #35243fe8;
     color: #fff2ee;
     box-shadow: 0 8px 20px #09091799, 0 0 18px #ff8fa455;
-    font: 900 clamp(13px, 3cqi, 21px)/1 system-ui;
+    font: 900 clamp(11px, 2.8vw, 15px)/1 system-ui;
     letter-spacing: .03em;
-    transform: rotate(6deg);
-    animation: failure-pop 650ms cubic-bezier(.18,1.3,.35,1) .6s 1 both;
-  }
-  .success .glove-contact,
-  .error .glove-contact {
-    animation: contact-frame 1.15s steps(1, end) 1 both;
-  }
-  .success .glove-open,
-  .error .glove-open {
-    animation: open-frame 1.15s steps(1, end) 1 both;
-  }
-  .success .glove-release,
-  .error .glove-release {
-    animation: release-frame 1.15s steps(1, end) 1 both;
+    white-space: nowrap;
+    transform: rotate(5deg);
   }
   .success .snap-flash {
-    animation: contact-flash 1.15s ease-out 1 both;
+    animation: contact-flash .9s ease-out 1 both;
   }
   .success .gauntlet,
   .success .sockets {
@@ -246,10 +242,6 @@ export const infinityStyles = css`
     position: absolute;
     z-index: 4;
     inset: 0;
-  }
-  .success .socket-wrap,
-  .error .socket-wrap {
-    animation: reveal-hand 1.15s ease-in-out 1 both;
   }
   .socket-wrap {
     position: absolute;
@@ -453,6 +445,10 @@ export const infinityStyles = css`
   .actions .submit span {
     margin-left: 10px;
   }
+  .actions [part="replay"] {
+    border-color: #e5c381;
+    color: #ffe9b0;
+  }
   .complete .submit:not(:disabled) {
     box-shadow:
       0 4px 0 #69523b,
@@ -548,33 +544,45 @@ export const infinityStyles = css`
   }
   @keyframes contact-frame {
     0%, 17% { opacity: 0; }
-    18%, 51% { opacity: 1; }
-    52%, 100% { opacity: 0; }
+    18%, 57% { opacity: 1; }
+    58%, 100% { opacity: 0; }
   }
   @keyframes open-frame {
     0%, 17% { opacity: 1; }
-    18%, 83% { opacity: 0; }
-    84%, 100% { opacity: 1; }
+    18%, 90% { opacity: 0; }
+    91%, 100% { opacity: 1; }
   }
   @keyframes release-frame {
-    0%, 51% { opacity: 0; }
-    52%, 83% { opacity: 1; }
-    84%, 100% { opacity: 0; }
+    0%, 57% { opacity: 0; }
+    58%, 90% { opacity: 1; }
+    91%, 100% { opacity: 0; }
   }
   @keyframes contact-flash {
-    0%, 49% { opacity: 0; transform: scale(.1); }
-    53% { opacity: 1; transform: scale(1.5); }
-    72%, 100% { opacity: 0; transform: scale(3); }
+    0% { opacity: 0; transform: scale(.1); }
+    28% { opacity: 1; transform: scale(1.5); }
+    100% { opacity: 0; transform: scale(3); }
   }
   @keyframes reveal-hand {
-    0%, 14% { opacity: 1; }
-    22%, 78% { opacity: 0; }
+    0%, 15% { opacity: 1; }
+    22%, 86% { opacity: 0; }
     100% { opacity: 1; }
   }
-  @keyframes titan-recoil {
-    0%, 51% { transform: translate(0, 0) scale(1); }
-    66% { transform: translate(-11px, -10px) scale(1.04) rotate(-3deg); }
-    100% { transform: translate(-3px, -4px) scale(1.02) rotate(-1deg); }
+  @keyframes snap-camera {
+    0%, 15% { transform: scale(1) rotate(0); }
+    35%, 56% { transform: scale(1.06) rotate(-5deg); }
+    62% { transform: scale(1.11) rotate(5deg); }
+    82% { transform: scale(1.04) rotate(2deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  @keyframes snap-impact {
+    0%, 57% { opacity: 0; transform: translate(-50%, -50%) scale(.2); }
+    62% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    84%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(3.6); }
+  }
+  @keyframes snap-letter {
+    0%, 56% { opacity: 0; transform: translateY(15px) scale(.6) rotate(-8deg); }
+    63%, 76% { opacity: 1; transform: translateY(0) scale(1.2) rotate(8deg); }
+    100% { opacity: 0; transform: translateY(-18px) scale(1) rotate(14deg); }
   }
   @keyframes failure-pop {
     from { opacity: 0; transform: translateY(20px) scale(.5) rotate(-12deg); }
@@ -592,7 +600,7 @@ export const infinityStyles = css`
       filter: brightness(1);
     }
     45% {
-      filter: brightness(1.7);
+      filter: brightness(1.2);
     }
   }
   @keyframes dust-out {
