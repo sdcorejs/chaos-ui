@@ -16,7 +16,7 @@ import {
       <h2>Loto OTP · Angular Reactive Forms</h2>
       <p>
         Tin nhắn vừa nhận: <strong>000000</strong>. The host checks this demo
-        code.
+        code. Nguồn bóng được xáo độc lập với mã và có thể lấy lặp lại.
       </p>
       <chaos-loto-otp
         [formControl]="control"

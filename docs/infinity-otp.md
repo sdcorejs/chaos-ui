@@ -40,7 +40,7 @@ Angular `sdChange`, `sdComplete` and `sdSubmit` carry typed payloads. Its CVA pa
 
 ## Visual customization and effects
 
-The SVG glove and CSS gems are bundled inside the core package. The six drop targets are at least 43 CSS pixels wide in narrow layouts, with distinct printed digits before and after placement. The source stones stay independent of socket color/symbol. Shadow DOM isolates styling; supported parts are `board`, `header`, `stage`, `gauntlet`, `sockets`, `socket`, `input`, `pool`, `stone`, `source`, `hint`, `actions`, `reset`, `remove`, `mode-toggle`, `submit`, `message`, `celebration`, `dust`, `drag-stone`.
+The faceted SVG glove has separate finger, thumb, palm and cuff armor panels with brass edges; the SVG and CSS gems are bundled inside the core package. The six drop targets remain at least 43 CSS pixels wide in narrow layouts, with distinct printed digits before and after placement. The source stones stay independent of socket color/symbol. Shadow DOM isolates styling; supported parts are `board`, `header`, `stage`, `gauntlet`, `sockets`, `socket`, `input`, `pool`, `stone`, `source`, `hint`, `actions`, `reset`, `remove`, `mode-toggle`, `submit`, `message`, `celebration`, `dust`, `drag-stone`.
 
 | CSS variable | Default | Use |
 | --- | --- | --- |

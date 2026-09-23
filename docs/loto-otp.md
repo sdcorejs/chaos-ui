@@ -1,6 +1,6 @@
 # Loto OTP
 
-Drag scattered loto balls into the code slots, or pick a digit and then a destination. The ten digits are reusable sources: `000000`, `112233`, and every other code of the configured length are possible. The component never receives a correct code or performs authentication.
+Drag scattered loto balls into the code slots, or pick a digit and then a destination. The ten digits appear in a randomized order and position for each instance. They are reusable sources: `000000`, `112233`, and every other code of the configured length are possible. The pool is independent of the correct code; the component never receives a correct code or performs authentication.
 
 ## Component names
 
@@ -39,7 +39,7 @@ Core events are bubbling, composed `CustomEvent`s. All payload objects and slot 
 - `complete`: `{ slots, value: string, complete: true }`. After `change`, if that edit changes an incomplete code to complete or changes the full value. Re-selecting the same digit in the same position does nothing. Re-filling after deletion can emit again. This event does **not** mean the code is correct.
 - `submit`: `{ slots, value: string, complete: true }`. Explicit Confirm/Enter only. Never fires while incomplete, disabled, readonly or verifying. Repeated confirmations are possible while the host leaves the control idle; set verifying immediately to prevent duplicate requests.
 
-Prop synchronization, `writeValue`, length normalization and silent `element.reset()` never emit business events. The visible Reset button is a user action and emits `change` when it actually clears something. `reset()` only resets input/transient interaction: the host must reset `status` and `message` too. Success glow and **KINH!** appear only when the host passes `status="success"`; no secret or sample code is included in a library package.
+Prop synchronization, `writeValue`, length normalization and silent `element.reset()` never emit business events. The visible Reset button is a user action and emits `change` when it actually clears something. Clearing all slots, including a host-controlled reset, reshuffles the pool. The “Xáo bóng” button reshuffles without changing slots or emitting OTP events. `reset()` only resets input/transient interaction: the host must reset `status` and `message` too. Success glow and **KINH!** appear only when the host passes `status="success"`; no secret or sample code is included in a library package.
 
 ## Web Component
 
@@ -112,7 +112,7 @@ Angular wrapper peers are exactly `@angular/core`, `@angular/common`, `@angular/
 - Mouse/touch: drag from the infinite supply to any slot. Drag between slots to move, swapping occupied targets. Drag an occupied slot anywhere outside a slot to remove it.
 - Alternative: pick a pool digit then tap/click a slot. Click a filled slot then another to move/swap; the Remove ball button clears a selected occupied slot. Escape cancels selection.
 - Keyboard: Tab through semantic controls; digits fill a focused slot and advance. Left/Right/Home/End move focus. Delete clears the current slot; Backspace on an empty slot clears the previous one. Enter on a slot confirms. Enter/Space on a pool button selects it; Space on a slot places the selected ball. Paste/autofill can fill multiple positions.
-- Pool movement pauses during selection, pointer gestures and focus within the component. Reduced motion removes float, snap and celebration animations while keeping the success text/glow.
+- Pool movement pauses during selection, pointer gestures and focus within the component. Random order, slight scatter and rotation are chosen on creation or reshuffle; idle movement does not change the digit mapping. Reduced motion removes float, snap and celebration animations while keeping the success text/glow.
 - Pointer cancel, resize, host state/length/mode changes and disconnect cancel transient drag without applying a drop. Pointer capture and resize listeners are released; media-query listeners and audio contexts are cleaned up on disconnect. Reconnection and multiple instances are independent. CSS-only animations require no timers/RAF loops.
 
 ## Styling
@@ -132,7 +132,7 @@ Host CSS variables inherit through both wrappers. No watermark is required.
 | `--loto-ball-size` | `68px`                                   |
 | `--loto-gap`       | `8px` (4px default in narrow containers) |
 
-Public parts: `board`, `slots`, `slot`, `input`, `ball`, `source`, `pool`, `hint`, `actions`, `reset`, `mode-toggle`, `submit`, `message`, `celebration`, `drag-ball`.
+Public parts: `board`, `slots`, `slot`, `input`, `ball`, `source`, `pool`, `hint`, `actions`, `shuffle`, `reset`, `mode-toggle`, `submit`, `message`, `celebration`, `drag-ball`.
 
 ```css
 chaos-loto-otp-element {

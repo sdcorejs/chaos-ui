@@ -128,41 +128,122 @@ export const infinityStyles = css`
     width: 100%;
     height: 100%;
     overflow: visible;
-    filter: drop-shadow(0 12px 13px #0a0b1cb5);
+    filter: drop-shadow(0 18px 16px #070916d9);
+  }
+  .orbit ellipse {
+    stroke: #c4a77c;
+    stroke-width: 1.4;
+    stroke-dasharray: 3 12;
+    opacity: 0.48;
+  }
+  .orbit path {
+    stroke: #b487bc;
+    stroke-width: 1.2;
+    opacity: 0.21;
   }
   .arm-shadow {
-    fill: #171827;
-    stroke: #100e18;
-    stroke-width: 10;
+    fill: #080d20;
+    stroke: #070916;
+    stroke-width: 11;
   }
   .arm {
-    fill: url(#infinity-metal);
-    stroke: #2e2631;
-    stroke-width: 8;
+    fill: url(#infinity-brass);
+    stroke: #161629;
+    stroke-width: 7;
+  }
+  .arm-panel {
+    fill: url(#infinity-armor);
+    stroke: #d4af74;
+    stroke-width: 3;
+  }
+  .arm-etch {
+    fill: none;
+    stroke: #d5b878;
+    stroke-width: 3;
+    opacity: 0.65;
   }
   .finger,
   .thumb {
-    fill: url(#infinity-edge);
-    stroke: #382e37;
-    stroke-width: 7;
+    fill: url(#infinity-brass);
+    stroke: #171729;
+    stroke-width: 6;
+    stroke-linejoin: round;
+  }
+  .finger-plate,
+  .thumb-plate {
+    fill: url(#infinity-plate);
+    stroke: #e0bd82;
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+  }
+  .finger-seam,
+  .thumb-seam {
+    fill: none;
+    stroke: #e3c688;
+    stroke-width: 4;
+    stroke-linecap: round;
+    opacity: 0.82;
+  }
+  .finger-glint {
+    fill: none;
+    stroke: #fce6b4;
+    stroke-width: 4;
+    stroke-linecap: round;
+    opacity: 0.82;
   }
   .palm {
-    fill: url(#infinity-palm);
-    stroke: #3d3039;
+    fill: url(#infinity-brass);
+    stroke: #151626;
     stroke-width: 8;
+    stroke-linejoin: round;
   }
-  .palm-detail,
-  .cuff-detail {
+  .palm-rim {
+    fill: #11182e;
+    stroke: #d0a463;
+    stroke-width: 3;
+    stroke-linejoin: round;
+  }
+  .palm-panel {
+    fill: url(#infinity-armor);
+    stroke: #8e765a;
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+  }
+  .palm-etch {
     fill: none;
-    stroke: #f3d694;
-    stroke-width: 6;
-    opacity: 0.55;
+    stroke: #d1b789;
+    stroke-width: 2.5;
+    opacity: 0.66;
     stroke-linecap: round;
   }
+  .palm-glyph {
+    fill: url(#infinity-glyph-gradient);
+    fill-rule: evenodd;
+    stroke: #d1b179;
+    stroke-width: 2;
+    opacity: 0.92;
+  }
   .cuff {
-    fill: url(#infinity-metal);
-    stroke: #3d3038;
-    stroke-width: 8;
+    fill: url(#infinity-brass);
+    stroke: #141425;
+    stroke-width: 6;
+  }
+  .cuff-panel {
+    fill: url(#infinity-armor);
+    stroke: #e0bd7e;
+    stroke-width: 2.5;
+  }
+  .cuff-detail {
+    fill: none;
+    stroke: #e4c182;
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.76;
+  }
+  .rivet {
+    fill: #f5d598;
+    stroke: #483d3d;
+    stroke-width: 2;
   }
   .snap-fingers {
     transform-origin: 50% 60%;
@@ -234,14 +315,14 @@ export const infinityStyles = css`
     display: grid;
     place-items: center;
     padding: 0;
-    border-radius: 20px;
-    border: 3px solid #f7d393;
-    background: radial-gradient(circle at 30% 22%, #514263, #1a2039 65%);
+    border-radius: 14px;
+    border: 2px solid #f2d9a2;
+    background: radial-gradient(circle at 29% 20%, #5e536d, #151b32 68%);
     color: #fffbea;
     box-shadow:
-      0 4px 0 #281e32,
-      0 0 0 4px #654e3c,
-      inset 0 0 13px #030a1e;
+      0 5px 0 #17172b,
+      0 0 0 4px #85613e,
+      inset 0 0 18px #030918;
     touch-action: none;
     user-select: none;
   }
@@ -250,7 +331,7 @@ export const infinityStyles = css`
     position: absolute;
     inset: 5px;
     border: 1px solid #ffffff80;
-    border-radius: 14px;
+    border-radius: 9px;
     pointer-events: none;
   }
   .socket.filled {
@@ -262,9 +343,9 @@ export const infinityStyles = css`
     );
     color: #111827;
     box-shadow:
-      0 5px 0 #251a30,
-      0 0 0 4px #594736,
-      0 0 19px var(--gem);
+      0 5px 0 #17172b,
+      0 0 0 4px #8b6949,
+      0 0 24px var(--gem);
   }
   .socket.selected,
   .source[aria-pressed="true"] {

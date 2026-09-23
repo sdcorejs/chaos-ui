@@ -146,15 +146,14 @@ export const lotoStyles = css`
     touch-action: none;
     animation: float 5s ease-in-out infinite alternate;
     transform: rotate(var(--tilt));
+    translate: var(--scatter-x) var(--scatter-y);
     animation-delay: var(--delay);
   }
   .pool .ball:nth-child(3n) {
     --ball-tint: #c8b3e9;
-    translate: 3px -6px;
   }
   .pool .ball:nth-child(3n + 2) {
     --ball-tint: #d5ea8d;
-    translate: -3px 7px;
   }
   .pool .ball[aria-pressed="true"] {
     outline: 3px solid var(--loto-focus, #7553b5);

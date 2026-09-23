@@ -11,6 +11,7 @@ import {
   type OtpProps,
 } from "../otp.js";
 import { lotoStyles } from "./styles.js";
+import { createLotoPool } from "./pool.js";
 import { OtpAudio } from "../otp-audio.js";
 import {
   placeOtpDigit,
@@ -29,7 +30,6 @@ type Drag = Selection & {
   y: number;
   moved: boolean;
 };
-const digits: OtpDigit[] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 const words = {
   vi: {
     title: "LÔ TÔ • MÃ XÁC NHẬN",
@@ -41,6 +41,7 @@ const words = {
     selected: "Đã chọn số",
     place: "Bấm ô đích để đặt bóng.",
     reset: "Làm lại",
+    shuffle: "Xáo bóng",
     remove: "Bỏ bóng",
     submit: "Xác nhận",
     verifying: "Đang xác thực…",
@@ -63,6 +64,7 @@ const words = {
     selected: "Selected digit",
     place: "Choose a destination slot.",
     reset: "Reset",
+    shuffle: "Shuffle balls",
     remove: "Remove ball",
     submit: "Confirm",
     verifying: "Verifying…",
@@ -136,6 +138,7 @@ export class ChaosLotoOtpElement extends LitElement implements OtpProps {
   private ignoreClickUntil = 0;
   private readonly audio = new OtpAudio();
   private pendingFocus = 0;
+  private poolBalls = createLotoPool();
 
   constructor() {
     super();
@@ -188,6 +191,15 @@ export class ChaosLotoOtpElement extends LitElement implements OtpProps {
     this.systemReduced = event.matches;
   };
   protected override willUpdate(changed: PropertyValues<this>) {
+    if (changed.has("slots")) {
+      const previous = changed.get("slots");
+      if (
+        Array.isArray(previous) &&
+        previous.some((digit) => digit !== null) &&
+        this.values.every((digit) => digit === null)
+      )
+        this.poolBalls = createLotoPool(this.poolBalls);
+    }
     if (changed.has("length") || changed.has("slots")) {
       this.length = normalizeOtpLength(this.length);
       const values = this.values;
@@ -212,10 +224,22 @@ export class ChaosLotoOtpElement extends LitElement implements OtpProps {
    * @example element.reset(); // no change/complete/submit event
    */
   reset(): void {
+    const wasEmpty = this.values.every((digit) => digit === null);
     this.cancelInteraction();
     this.pendingFocus++;
     this.slots = normalizeOtpSlots([], this.length);
+    if (wasEmpty) {
+      this.poolBalls = createLotoPool(this.poolBalls);
+      this.requestUpdate();
+    }
   }
+
+  private shufflePool = () => {
+    if (this.locked) return;
+    this.cancelInteraction();
+    this.poolBalls = createLotoPool(this.poolBalls);
+    this.requestUpdate();
+  };
 
   private commit(next: OtpSlots, event: Event) {
     if (this.locked) return;
@@ -512,8 +536,8 @@ export class ChaosLotoOtpElement extends LitElement implements OtpProps {
       </div>
       ${this.mode === "game"
         ? html`<div part="pool" class="pool" role="group" aria-label=${t.pool}>
-            ${digits.map(
-              (digit, index) =>
+            ${this.poolBalls.map(
+              ({ digit, x, y, tilt, delay }) =>
                 html`<button
                   type="button"
                   part="ball source"
@@ -522,7 +546,7 @@ export class ChaosLotoOtpElement extends LitElement implements OtpProps {
                   aria-pressed=${this.selection?.digit === digit &&
                   this.selection.source === null}
                   ?disabled=${this.locked}
-                  style=${`--tilt:${[-12, 8, -5, 14, -9][index % 5]}deg;--delay:${-index * 0.37}s`}
+                  style=${`--scatter-x:${x}px;--scatter-y:${y}px;--tilt:${tilt}deg;--delay:${delay}s`}
                   @click=${(e: MouseEvent) => this.clickDigit(digit, e)}
                   @pointerdown=${(e: PointerEvent) =>
                     this.pointerDown({ digit, source: null }, e)}
@@ -538,6 +562,16 @@ export class ChaosLotoOtpElement extends LitElement implements OtpProps {
           : t.hint}
       </p>
       <div part="actions" class="actions">
+        ${this.mode === "game"
+          ? html`<button
+              type="button"
+              part="shuffle"
+              ?disabled=${this.locked}
+              @click=${this.shufflePool}
+            >
+              ${t.shuffle} ↻
+            </button>`
+          : nothing}
         <button
           type="button"
           part="reset"
