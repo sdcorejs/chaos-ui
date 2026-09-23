@@ -2,6 +2,12 @@
 
 No packages are published by this foundation. CI never runs npm publish and needs no registry write token.
 
+## Playground deployment
+
+The `Verify and deploy playground` workflow runs `pnpm check` on pushes and pull requests. A successful push to `main` rebuilds only `apps/playground` with `GITHUB_PAGES_BASE=/chaos-ui/`, uploads `apps/playground/dist` as a Pages artifact, then deploys it to [the live playground](https://sdcorejs.github.io/chaos-ui/). The deploy job uses the `github-pages` environment and scopes `pages: write` and `id-token: write` to deployment. The repository's Pages source must be GitHub Actions. Manual runs from `main` can redeploy the same code.
+
+Local development uses Vite's `/` base. To inspect the deploy build locally, set `GITHUB_PAGES_BASE=/chaos-ui/` for `pnpm --filter @chaos-ui/playground build`; no environment variable is needed for `pnpm dev` or the examples. Pages deploys the playground only, not the examples or npm packages.
+
 Use Node 24.19.0 and pnpm 11.19.0. Run:
 
 ```sh

@@ -4,6 +4,8 @@
 
 A reusable UI collection that turns familiar interactions into mini games. Loto OTP and Infinity OTP are implemented with drag/drop, tap and keyboard entry, React controlled/uncontrolled wrappers and Angular model/Reactive Forms integration. Volume Gym remains on the roadmap. Nothing has been published to npm.
 
+Try the [live playground](https://sdcorejs.github.io/chaos-ui/). GitHub Actions deploys it after a successful `main` CI run; npm packages are not published by this workflow.
+
 ## Run locally
 
 Use **Node 24.19.0** and **pnpm 11.19.0** (see `.node-version` and `packageManager`).
