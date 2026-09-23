@@ -17,7 +17,7 @@ import {
 import { OtpAudio } from "../otp-audio.js";
 import { gloveArtwork } from "./glove.js";
 import { gemSvg } from "./gem.js";
-import { titanSvg } from "./titan.js";
+import { failedEmoji } from "./failed-emoji.js";
 import { infinityStyles } from "./styles.js";
 
 /** Shared OTP options with six fixed sockets; `length` is intentionally unavailable.
@@ -35,6 +35,8 @@ type Drag = OtpSelection & {
 };
 const digits: OtpDigit[] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 const sourceColors = ["#baa6e4", "#93c9e6", "#e1afd2", "#d4bf8a", "#8ad8c3"] as const;
+const SNAP_DURATION_MS = 2100;
+type SnapPhase = "idle" | "playing" | "finished";
 const words = {
   vi: {
     title: "GĂNG TAY VÔ CỰC",
@@ -49,6 +51,7 @@ const words = {
     reset: "Làm lại",
     remove: "Lấy đá ra",
     submit: "Búng tay",
+    snapping: "Đang búng tay…",
     verifying: "Vũ trụ đang kiểm tra…",
     success: "Hoàn tất! Vũ trụ đã nghe thấy.",
     error: "Chưa đúng. Đổi đá rồi thử lại.",
@@ -58,6 +61,7 @@ const words = {
     game: "Chơi xếp đá",
     badge: "BÚNG!",
     failedSnap: "Ơ KÌA?!",
+    replay: "Xem lại cú búng",
   },
   en: {
     title: "INFINITY GAUNTLET",
@@ -72,6 +76,7 @@ const words = {
     reset: "Reset",
     remove: "Remove stone",
     submit: "Snap fingers",
+    snapping: "Snapping fingers…",
     verifying: "The universe is checking…",
     success: "Done! The universe heard you.",
     error: "Not quite. Replace a stone and try again.",
@@ -81,6 +86,7 @@ const words = {
     game: "Arrange stones",
     badge: "SNAP!",
     failedSnap: "WAIT... WHAT?!",
+    replay: "Replay snap",
   },
 };
 
@@ -112,6 +118,7 @@ export class ChaosInfinityOtpElement
     drag: { state: true },
     systemReduced: { state: true },
     visualState: { state: true },
+    snapPhase: { state: true },
   };
   static {
     this.finalize();
@@ -122,7 +129,7 @@ export class ChaosInfinityOtpElement
   declare disabled: boolean;
   /** Default false; allows focus but blocks edits/submit. @example glove.readOnly = true; */
   declare readOnly: boolean;
-  /** Host verification state; default idle. Effects run on transitions. @example glove.status = 'success'; */
+  /** Host verification state; default idle. Submit starts the snap; success/error appears after it finishes. @example glove.status = 'success'; */
   declare status: OtpStatus;
   /** Host feedback as plain text; default ''. @example glove.message = 'Try again'; */
   declare message: string;
@@ -138,6 +145,8 @@ export class ChaosInfinityOtpElement
   declare private drag: Drag | null;
   declare private systemReduced: boolean;
   declare private visualState: OtpStatus | null;
+  declare private snapPhase: SnapPhase;
+  private snapTimer: ReturnType<typeof setTimeout> | null = null;
   private media: MediaQueryList | undefined;
   private resizeWindow: Window | null = null;
   private ignoreClickUntil = 0;
@@ -163,6 +172,7 @@ export class ChaosInfinityOtpElement
     this.drag = null;
     this.systemReduced = false;
     this.visualState = null;
+    this.snapPhase = "idle";
   }
   private get t() {
     return words[this.locale === "en" ? "en" : "vi"];
@@ -189,6 +199,7 @@ export class ChaosInfinityOtpElement
   }
   override disconnectedCallback() {
     this.cancelInteraction();
+    this.cancelSnap();
     this.pendingFocus++;
     this.media?.removeEventListener("change", this.mediaChanged);
     this.media = undefined;
@@ -198,30 +209,69 @@ export class ChaosInfinityOtpElement
   }
   private mediaChanged = (event: MediaQueryListEvent) => {
     this.systemReduced = event.matches;
+    if (this.motionOff) this.finishSnap();
   };
   protected override willUpdate(changed: PropertyValues<this>) {
     if (changed.has("slots")) {
       const values = this.values;
+      const previous = changed.get("slots");
+      const contentsChanged =
+        !Array.isArray(previous) ||
+        normalizeOtpSlots(previous, 6).some((digit, index) => digit !== values[index]);
       if (
         !Array.isArray(this.slots) ||
         this.slots.length !== 6 ||
         this.slots.some((d, i) => d !== values[i])
       )
         this.slots = values;
-      this.cancelInteraction();
+      if (contentsChanged) {
+        this.cancelInteraction();
+        this.cancelSnap();
+        this.visualState = null;
+      }
     }
+    if (changed.has("mode")) this.cancelSnap();
     if (changed.has("mode") || this.locked) this.cancelInteraction();
+    if (changed.has("reducedMotion") && this.motionOff)
+      this.finishSnap();
     if (!this.sound) this.audio.close();
     if (changed.has("status") && changed.get("status") !== this.status) {
       this.visualState = this.status;
+      if (this.status === "idle") this.cancelSnap();
+      else if (
+        (this.status === "success" || this.status === "error") &&
+        this.snapPhase === "idle"
+      )
+        this.startSnap();
       if (this.status === "success") this.audio.tone(this.sound, true);
     }
+  }
+  private cancelSnap() {
+    if (this.snapTimer !== null) clearTimeout(this.snapTimer);
+    this.snapTimer = null;
+    this.snapPhase = "idle";
+  }
+  private finishSnap() {
+    if (this.snapPhase !== "playing") return;
+    if (this.snapTimer !== null) clearTimeout(this.snapTimer);
+    this.snapTimer = null;
+    this.snapPhase = "finished";
+  }
+  private startSnap() {
+    this.cancelSnap();
+    if (this.motionOff) {
+      this.snapPhase = "finished";
+      return;
+    }
+    this.snapPhase = "playing";
+    this.snapTimer = setTimeout(() => this.finishSnap(), SNAP_DURATION_MS);
   }
   /** Silently clear slots and cancel effects/drag; host also sets status to idle.
    * @example glove.reset(); glove.status = 'idle';
    */
   reset(): void {
     this.cancelInteraction();
+    this.cancelSnap();
     this.pendingFocus++;
     this.slots = normalizeOtpSlots([], 6);
     this.visualState = null;
@@ -233,6 +283,7 @@ export class ChaosInfinityOtpElement
       after = otpSnapshot(normalizeOtpSlots(next, 6));
     if (before.slots.every((d, i) => d === after.slots[i])) return;
     this.cancelInteraction();
+    this.cancelSnap();
     this.slots = [...after.slots];
     this.visualState = null;
     this.audio.activate(event, this.sound);
@@ -255,13 +306,23 @@ export class ChaosInfinityOtpElement
       );
   }
   private submit = (event: Event) => {
-    if (this.locked) return;
+    if (this.locked || this.snapPhase === "playing") return;
     const detail = otpSnapshot(this.values);
     if (!detail.complete) return;
     this.audio.activate(event, this.sound);
+    this.startSnap();
     this.dispatchEvent(
       new CustomEvent("submit", { detail, bubbles: true, composed: true }),
     );
+  };
+  private replaySnap = (event: Event) => {
+    if (
+      this.disabled ||
+      this.status === "verifying" ||
+      (this.status !== "success" && this.status !== "error")
+    ) return;
+    this.audio.activate(event, this.sound);
+    this.startSnap();
   };
   private place(selection: OtpSelection, target: number, event: Event) {
     this.commit(placeOtpDigit(this.values, selection, target), event);
@@ -437,7 +498,7 @@ export class ChaosInfinityOtpElement
     const t = this.t,
       values = this.values,
       complete = otpSnapshot(values).complete,
-      state = this.visualState;
+      state = this.snapPhase === "playing" ? "snapping" : this.visualState;
     const label = (index: number) =>
       `${t.slot} ${index + 1}: ${values[index] ?? t.empty}`;
     return html`<section
@@ -447,7 +508,7 @@ export class ChaosInfinityOtpElement
         ? "no-motion"
         : ""}"
       aria-label=${t.title}
-      aria-busy=${this.status === "verifying"}
+      aria-busy=${this.status === "verifying" || this.snapPhase === "playing"}
       @pointermove=${this.pointerMove}
       @pointerup=${this.pointerUp}
       @pointercancel=${this.cancelInteraction}
@@ -460,12 +521,16 @@ export class ChaosInfinityOtpElement
       </header>
       <div part="stage" class="stage">
         <div class="halo" aria-hidden="true"></div>
-        ${titanSvg}
         ${gloveArtwork}
+        ${state === "snapping"
+          ? html`<span part="snap-impact" class="snap-impact" aria-hidden="true"></span>
+              <span part="snap-caption" class="snap-caption" aria-hidden="true">${t.badge}</span>`
+          : nothing}
         ${state === "error"
-          ? html`<span part="failed-snap" class="failed-snap" aria-hidden="true"
-              >${t.failedSnap}</span
-            >`
+          ? html`<div class="failed-reaction" aria-hidden="true">
+              ${failedEmoji}
+              <span part="failed-snap" class="failed-snap">${t.failedSnap}</span>
+            </div>`
           : nothing}
         <div part="sockets" class="sockets" role="group" aria-label=${t.title}>
           ${values.map(
@@ -594,14 +659,27 @@ export class ChaosInfinityOtpElement
           part="submit"
           class="submit"
           type="button"
-          ?disabled=${this.locked || !complete}
+          ?disabled=${this.locked || !complete || this.snapPhase === "playing"}
           @click=${this.submit}
         >
-          ${this.status === "verifying" ? t.verifying : t.submit}<span
+          ${this.snapPhase === "playing"
+            ? t.snapping
+            : this.status === "verifying"
+              ? t.verifying
+              : t.submit}<span
             aria-hidden="true"
             >✦</span
           >
         </button>
+        ${(this.status === "success" || this.status === "error") &&
+        this.snapPhase === "finished"
+          ? html`<button
+              part="replay"
+              type="button"
+              ?disabled=${this.disabled}
+              @click=${this.replaySnap}
+            >${t.replay}</button>`
+          : nothing}
       </div>
       <div
         part="message"
@@ -610,7 +688,7 @@ export class ChaosInfinityOtpElement
         role="status"
         aria-live="polite"
       >
-        ${this.message ||
+        ${state === "snapping" ? t.snapping : this.message ||
         (this.status === "verifying"
           ? t.verifying
           : this.status === "success"

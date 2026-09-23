@@ -259,42 +259,68 @@ test("Infinity effects stay local, run once per success transition, and stop on 
     two = page.locator("#effect-two");
   await one.evaluate((el: ChaosInfinityOtpElement) => {
     el.dataset.snapStarts = "0";
+    el.dataset.businessEvents = "0";
     el.shadowRoot?.addEventListener("animationstart", (event) => {
       if ((event as AnimationEvent).animationName === "contact-frame")
         el.dataset.snapStarts = String(Number(el.dataset.snapStarts) + 1);
     });
+    for (const name of ["change", "complete", "submit"])
+      el.addEventListener(name, () => {
+        el.dataset.businessEvents = String(Number(el.dataset.businessEvents) + 1);
+      });
     el.slots = ["0", "0", "1", "1", "2", "2"];
     el.status = "success";
   });
-  await expect(one.getByText("BÚNG!", { exact: true })).toBeVisible();
+  await expect(one.locator(".board")).toHaveClass(/snapping/);
+  await expect(one.locator('[part="failed-emoji"]')).toHaveCount(0);
   await expect(two.getByText("BÚNG!", { exact: true })).toHaveCount(0);
   await expect(page.locator("#outside-marker")).toHaveText("Still here");
-  await expect(one.locator(".dust i")).toHaveCount(24);
+  await expect(one.locator(".dust i")).toHaveCount(0);
   await expect(one).toHaveAttribute("data-snap-starts", "1");
-  await page.waitForTimeout(750);
+  await one.evaluate((el: ChaosInfinityOtpElement) => {
+    el.slots = [...el.slots];
+    el.message = "Checking the same digits";
+  });
+  await expect(one.locator(".board")).toHaveClass(/snapping/);
+  await expect(one).toHaveAttribute("data-snap-starts", "1");
+  await expect(one.getByText("Đang búng tay…", { exact: true })).toBeVisible();
+  await expect(one.getByText("Checking the same digits")).toHaveCount(0);
+  await expect(one.locator(".board")).toHaveClass(/success/, { timeout: 3500 });
+  await expect(one.getByText("Checking the same digits")).toBeVisible();
+  await expect(one.locator(".dust i")).toHaveCount(24);
+  await expect(one.getByText("BÚNG!", { exact: true })).toBeVisible();
   await one.evaluate((el: ChaosInfinityOtpElement) => {
     el.message = "Still successful";
   });
   await expect(one.getByText("Still successful")).toBeVisible();
   await expect(one).toHaveAttribute("data-snap-starts", "1");
+  await one.getByRole("button", { name: "Xem lại cú búng" }).click();
+  await expect(one.locator(".board")).toHaveClass(/snapping/);
+  await expect(one).toHaveAttribute("data-snap-starts", "2");
+  await expect(one).toHaveAttribute("data-business-events", "0");
+  await one.evaluate((el: ChaosInfinityOtpElement) => {
+    el.remove();
+    document.body.prepend(el);
+  });
+  await expect(one.locator(".board")).not.toHaveClass(/snapping/);
   await one.evaluate((el: ChaosInfinityOtpElement) => {
     el.reset();
     el.status = "idle";
   });
   await expect(one.locator(".dust i")).toHaveCount(0);
   await expect(one.getByText("BÚNG!", { exact: true })).toHaveCount(0);
+  await expect(one.locator(".glove-contact")).toHaveCSS("animation-name", "none");
   await one.evaluate((el: ChaosInfinityOtpElement) => {
     el.slots = ["9", "9", "9", "9", "9", "9"];
     el.status = "error";
   });
+  await expect(one.locator(".board")).toHaveClass(/snapping/);
+  await expect(one.locator('[part="failed-emoji"]')).toHaveCount(0);
+  await expect(one.locator(".board")).toHaveClass(/error/, { timeout: 3500 });
   await expect(one.locator('[part="failed-snap"]')).toHaveText("Ơ KÌA?!");
-  await expect(one.locator('[part="failed-snap"]')).toHaveCSS("animation-delay", "0.6s");
-  await expect(one.locator(".titan .surprised-mouth")).toHaveCSS("opacity", "1");
-  await expect(one.locator(".titan .surprised-mouth")).toHaveCSS("transition-delay", "0.58s");
-  await expect(one.locator(".glove-contact")).toHaveCSS(
-    "animation-name",
-    "contact-frame",
-  );
+  await expect(one.locator('[part="failed-emoji"]')).toBeVisible();
+  await expect(one.locator(".titan")).toHaveCount(0);
+  await expect(two.locator('[part="failed-emoji"]')).toHaveCount(0);
   await expect(page.locator("#outside-marker")).toHaveText("Still here");
   await one.evaluate((el: ChaosInfinityOtpElement) => {
     el.reset();
@@ -325,35 +351,34 @@ test("Infinity snap shows distinct contact and finger-release frames", async ({
     el.id = "snap-frames";
     document.body.prepend(el);
     el.slots = ["0", "0", "1", "1", "2", "2"];
-    el.status = "success";
   });
   const game = page.locator("#snap-frames");
   await expect(game.locator(".glove-frame")).toHaveCount(3);
   await expect.poll(() => game.locator(".glove-frame").evaluateAll((images) =>
     images.every((image) => (image as HTMLImageElement).naturalWidth > 0),
   )).toBe(true);
+  await game.getByRole("button", { name: "Búng tay", exact: true }).click();
+  await expect(game.locator(".board")).toHaveClass(/snapping/);
   const frameAt = async (time: number) => game.evaluate((host, ms) => {
     const frames = [".glove-contact", ".glove-release", ".glove-open"].map((selector) =>
       host.shadowRoot!.querySelector<HTMLElement>(selector)!,
     );
-    for (const socket of host.shadowRoot!.querySelectorAll<HTMLElement>(".socket-wrap")) {
-      const animation = socket.getAnimations()[0]!;
-      animation.pause();
-      animation.currentTime = ms;
+    for (const node of host.shadowRoot!.querySelectorAll<HTMLElement>(
+      ".gauntlet, .socket-wrap, .glove-frame, .snap-impact, .snap-caption",
+    )) {
+      for (const animation of node.getAnimations()) {
+        animation.pause();
+        animation.currentTime = ms;
+      }
     }
-    return frames.map((frame) => {
-      const animation = frame.getAnimations()[0]!;
-      animation.pause();
-      animation.currentTime = ms;
-      return Number(getComputedStyle(frame).opacity);
-    });
+    return frames.map((frame) => Number(getComputedStyle(frame).opacity));
   }, time);
-  expect(await frameAt(350)).toEqual([1, 0, 0]);
+  expect(await frameAt(600)).toEqual([1, 0, 0]);
   await expect(game.locator(".socket-wrap").first()).toHaveCSS("opacity", "0");
   await game.locator(".stage").screenshot({
     path: `output/playwright/infinity-snap-contact-${isMobile ? "mobile" : "desktop"}.png`,
   });
-  expect(await frameAt(700)).toEqual([0, 1, 0]);
+  expect(await frameAt(1450)).toEqual([0, 1, 0]);
   await game.locator(".stage").screenshot({
     path: `output/playwright/infinity-snap-release-${isMobile ? "mobile" : "desktop"}.png`,
   });
@@ -389,12 +414,15 @@ test("Infinity playground: delayed result, retry, localized snap and responsive 
     game.getByText("Chưa đúng mã. Hãy thay viên đá cần sửa.", { exact: true }),
   ).toBeVisible();
   await expect(game.locator('[part="failed-snap"]')).toBeVisible();
+  await expect(game.locator('[part="failed-emoji"]')).toBeVisible();
   await page.locator("#demo").screenshot({
     path: `output/playwright/infinity-error-${isMobile ? "mobile" : "desktop"}.png`,
   });
   await slots(game).first().focus();
   await page.keyboard.type(code);
   await page.keyboard.press("Enter");
+  await expect(game.locator(".board")).toHaveClass(/snapping/);
+  await expect(game.locator(".board")).toHaveClass(/success/, { timeout: 3500 });
   await expect(game.getByText("BÚNG!", { exact: true })).toBeVisible();
   if (!isMobile) {
     await page.waitForTimeout(1100);

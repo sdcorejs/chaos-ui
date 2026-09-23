@@ -85,9 +85,9 @@ export function InfinityDemo() {
         </label>
       </div>
       <p className="loto-footnote">
-        Sáu hốc có thứ tự rõ ràng; mỗi đá số có thể lấy lặp lại. Sai mã:
-        ngón cái chạm ngón giữa rồi búng hụt, titan ngạc nhiên. Đúng mã:
-        cú búng phát sáng và UI tan thành bụi trong vùng trò chơi.
+        Sáu hốc có thứ tự rõ ràng; mỗi đá số có thể lấy lặp lại. Cú búng bắt đầu
+        ngay khi xác nhận, có thể xem lại sau khi nhận kết quả. Sai mã mới hiện
+        emoji ngạc nhiên; đúng mã thì găng phát sáng và tan thành bụi trong vùng trò chơi.
       </p>
     </div>
   );

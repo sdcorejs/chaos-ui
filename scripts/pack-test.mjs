@@ -84,6 +84,12 @@ for (const name of [
   assert.equal(manifest.sideEffects, false);
   if (name === "@sdcorejs/chaos-ui") {
     assert(
+      !readdirSync(join(dir, "dist", "infinity-otp")).some((file) =>
+        String(file).startsWith("titan."),
+      ),
+      "Removed Infinity character art must not linger in the packed core package",
+    );
+    assert(
       readFileSync(join(dir, "assets", "loto-felt.png")).length > 0,
       "Loto artwork must ship with the packed core package",
     );
