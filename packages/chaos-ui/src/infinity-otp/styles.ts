@@ -98,6 +98,11 @@ export const infinityStyles = css`
     margin: 5px auto -8px;
     isolation: isolate;
   }
+  .stage,
+  .pool {
+    user-select: none;
+    -webkit-user-select: none;
+  }
   .stage::before {
     content: "";
     position: absolute;
@@ -296,6 +301,9 @@ export const infinityStyles = css`
     letter-spacing: 1px;
     pointer-events: none;
   }
+  .socket .order {
+    pointer-events: auto;
+  }
   .socket {
     width: 100%;
     height: 100%;
@@ -364,6 +372,8 @@ export const infinityStyles = css`
     color: #fff;
   }
   .input {
+    user-select: text;
+    -webkit-user-select: text;
     text-align: center;
     font: 900 27px system-ui;
     caret-color: #fff;
@@ -658,17 +668,6 @@ export const infinityStyles = css`
     .actions .submit {
       width: 100%;
       margin: 4px 0 0;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation: none !important;
-      transition: none !important;
-    }
-    .dust {
-      display: none;
     }
   }
 `;

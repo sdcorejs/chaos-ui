@@ -257,12 +257,20 @@ export class ChaosInfinityOtpElement
     this.snapTimer = null;
     this.snapPhase = "finished";
   }
-  private startSnap() {
+  private startSnap(reveal = false) {
     this.cancelSnap();
     if (this.motionOff) {
       this.snapPhase = "finished";
       return;
     }
+    // Submit is below the glove. Reveal it before the first frame, including
+    // when the host is inside a scrolling panel. Host-only updates never scroll.
+    if (reveal)
+      this.renderRoot.querySelector<HTMLElement>(".stage")?.scrollIntoView({
+        block: "nearest",
+        inline: "nearest",
+        behavior: "instant",
+      });
     this.snapPhase = "playing";
     this.snapTimer = setTimeout(() => this.finishSnap(), SNAP_DURATION_MS);
   }
@@ -310,7 +318,7 @@ export class ChaosInfinityOtpElement
     const detail = otpSnapshot(this.values);
     if (!detail.complete) return;
     this.audio.activate(event, this.sound);
-    this.startSnap();
+    this.startSnap(true);
     this.dispatchEvent(
       new CustomEvent("submit", { detail, bubbles: true, composed: true }),
     );
@@ -322,7 +330,7 @@ export class ChaosInfinityOtpElement
       (this.status !== "success" && this.status !== "error")
     ) return;
     this.audio.activate(event, this.sound);
-    this.startSnap();
+    this.startSnap(true);
   };
   private place(selection: OtpSelection, target: number, event: Event) {
     this.commit(placeOtpDigit(this.values, selection, target), event);
@@ -430,6 +438,9 @@ export class ChaosInfinityOtpElement
     if (this.locked || !event.isPrimary || event.button !== 0) return;
     this.cancelDrag();
     const element = event.currentTarget as HTMLElement;
+    // Pointer capture alone does not suppress the browser's selected-text drag.
+    event.preventDefault();
+    element.focus({ preventScroll: true });
     this.drag = {
       ...selection,
       id: event.pointerId,
@@ -493,6 +504,9 @@ export class ChaosInfinityOtpElement
     this.cancelDrag();
     this.selection = null;
   };
+  private preventNativeDrag = (event: DragEvent) => {
+    if (this.mode === "game") event.preventDefault();
+  };
 
   override render() {
     const t = this.t,
@@ -501,6 +515,8 @@ export class ChaosInfinityOtpElement
       state = this.snapPhase === "playing" ? "snapping" : this.visualState;
     const label = (index: number) =>
       `${t.slot} ${index + 1}: ${values[index] ?? t.empty}`;
+    const order = (index: number) => html`<span class="order" aria-hidden="true"
+      >${String(index + 1).padStart(2, "0")}</span>`;
     return html`<section
       part="board"
       class="board ${state ?? "idle"} ${complete ? "complete" : ""} ${this
@@ -519,7 +535,7 @@ export class ChaosInfinityOtpElement
         <div><strong>${t.title}</strong><small>${t.sub}</small></div>
         <span class="badge">06 / 06</span>
       </header>
-      <div part="stage" class="stage">
+      <div part="stage" class="stage" @dragstart=${this.preventNativeDrag}>
         <div class="halo" aria-hidden="true"></div>
         ${gloveArtwork}
         ${state === "snapping"
@@ -536,11 +552,8 @@ export class ChaosInfinityOtpElement
           ${values.map(
             (digit, index) =>
               html`<div class="socket-wrap pos-${index + 1}">
-                <span class="order" aria-hidden="true"
-                  >${String(index + 1).padStart(2, "0")}</span
-                >
                 ${this.mode === "input"
-                  ? html`<input
+                  ? html`${order(index)}<input
                       part="socket input"
                       class="socket input"
                       data-slot=${index}
@@ -579,6 +592,7 @@ export class ChaosInfinityOtpElement
                           this.pointerDown({ digit, source: index }, e);
                       }}
                     >
+                      ${order(index)}
                       ${digit === null ? nothing : gemSvg(index)}
                       <span class="gem-shape" aria-hidden="true"
                         >${["✦", "✧", "✳", "◇", "✶", "✴"][index]}</span
@@ -600,7 +614,8 @@ export class ChaosInfinityOtpElement
           : nothing}
       </div>
       ${this.mode === "game"
-        ? html`<div part="pool" class="pool" role="group" aria-label=${t.pool}>
+        ? html`<div part="pool" class="pool" role="group" aria-label=${t.pool}
+            @dragstart=${this.preventNativeDrag}>
             ${digits.map(
               (digit) =>
                 html`<button

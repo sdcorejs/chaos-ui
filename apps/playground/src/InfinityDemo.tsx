@@ -13,6 +13,8 @@ export function InfinityDemo() {
   const [message, setMessage] = useState("");
   const [sample, setSample] = useState(0);
   const [sound, setSound] = useState(false);
+  const [motion, setMotion] = useState<"auto" | "always" | "never">("auto");
+  const [systemReduced, setSystemReduced] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const code = codes[sample]!;
   const cancel = () => {
@@ -26,6 +28,13 @@ export function InfinityDemo() {
     setMessage("");
   };
   useEffect(() => () => cancel(), []);
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setSystemReduced(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
   return (
     <div className="infinity-demo">
       <div className="infinity-message">
@@ -43,6 +52,7 @@ export function InfinityDemo() {
         status={status}
         message={message}
         sound={sound}
+        reducedMotion={motion}
         onChange={({ slots }) => {
           cancel();
           setSlots(slots);
@@ -66,6 +76,18 @@ export function InfinityDemo() {
         }}
       />
       <div className="demo-controls">
+        <label>
+          Chuyển động{" "}
+          <select value={motion} onChange={(e) => {
+            const value = e.target.value;
+            if (value === "auto" || value === "always" || value === "never")
+              setMotion(value);
+          }}>
+            <option value="auto">Theo thiết bị</option>
+            <option value="never">Bật hoạt ảnh</option>
+            <option value="always">Giảm chuyển động</option>
+          </select>
+        </label>
         <button onClick={reset}>Reset Infinity ↺</button>
         <button
           onClick={() => {
@@ -84,6 +106,10 @@ export function InfinityDemo() {
           Âm thanh
         </label>
       </div>
+      {motion === "auto" && systemReduced && <p className="loto-footnote" role="status">
+        Thiết bị đang giảm chuyển động. Chọn “Bật hoạt ảnh” rồi “Xem lại cú búng”
+        để xem chuyển động ngón tay.
+      </p>}
       <p className="loto-footnote">
         Sáu hốc có thứ tự rõ ràng; mỗi đá số có thể lấy lặp lại. Cú búng bắt đầu
         ngay khi xác nhận, có thể xem lại sau khi nhận kết quả. Sai mã mới hiện
