@@ -99,33 +99,48 @@ export const lotoStyles = css`
     animation: snap 0.28s ease-out;
   }
   .ball {
+    position: relative;
     display: grid;
     place-items: center;
     border: 1.5px solid #5b533a;
     border-radius: 50%;
+    overflow: hidden;
     background: radial-gradient(
-      circle at 32% 22%,
-      #fffdf0 2%,
-      var(--loto-ball, var(--ball-tint, #f8d976)) 62%,
-      #c5a141 100%
+      circle at 28% 18%,
+      #fff 0%,
+      #fff9e8 11%,
+      var(--loto-ball, var(--ball-tint, #f8d976)) 48%,
+      #8e6948 100%
     );
     box-shadow:
-      inset -3px -5px 7px #7d612c24,
-      inset 2px 3px 4px #ffffffaa,
-      2px 5px 0 #4c412722,
-      0 9px 14px #6957371b;
+      inset -5px -8px 10px #54381977,
+      inset 3px 4px 6px #ffffffdd,
+      2px 5px 0 #241e1a66,
+      0 11px 16px #0d251e88;
     font-size: clamp(17px, 5cqi, 29px);
     font-weight: 800;
     user-select: none;
   }
   .ball span {
+    position: relative;
+    z-index: 1;
     display: grid;
     place-items: center;
     width: 58%;
     aspect-ratio: 1;
     border-radius: 50%;
-    background: #fffdf0dc;
-    border: 1px solid #6f5a2430;
+    background: radial-gradient(circle at 36% 22%, #fff, #fff9e8 72%, #e8dcc6);
+    border: 1px solid #6f5a2444;
+    box-shadow: 0 2px 5px #301d1655, inset 0 1px #fff;
+  }
+  .ball::after {
+    content: "";
+    position: absolute;
+    inset: 6% 14% 58% 12%;
+    border-radius: 50%;
+    background: linear-gradient(#fff9, #fff0);
+    transform: rotate(-18deg);
+    pointer-events: none;
   }
   .pool {
     display: grid;
@@ -133,11 +148,15 @@ export const lotoStyles = css`
     gap: 18px 13px;
     padding: 30px 12px 26px;
     margin-top: 22px;
-    border-radius: 18px;
-    border: 1px solid #e0d5ce;
-    background: var(--loto-pool, #f0deda);
-    background-image: radial-gradient(#a9806b24 0.8px, transparent 0.8px);
-    background-size: 12px 12px;
+    border-radius: 22px;
+    border: 5px solid #b87d55;
+    background: var(--loto-pool, #064333);
+    background-image:
+      linear-gradient(145deg, #063b2c55, #062f2499),
+      var(--loto-pool-art, var(--loto-art-url));
+    background-size: cover;
+    background-position: center;
+    box-shadow: inset 0 0 0 2px #f5ca83, inset 0 12px 26px #001a1699, 0 12px 20px #273a2b26;
   }
   .pool .ball {
     justify-self: center;

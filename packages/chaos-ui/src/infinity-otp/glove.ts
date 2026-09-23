@@ -9,22 +9,24 @@ export const gloveSvg = html`<svg
 >
   <defs>
     <linearGradient id="infinity-brass" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop stop-color="#f8e4a8" />
-      <stop offset=".23" stop-color="#bf925c" />
-      <stop offset=".58" stop-color="#654c43" />
-      <stop offset="1" stop-color="#d7ad6c" />
+      <stop stop-color="#fff2c7" />
+      <stop offset=".19" stop-color="#eabf73" />
+      <stop offset=".48" stop-color="#885137" />
+      <stop offset=".75" stop-color="#dca45b" />
+      <stop offset="1" stop-color="#5f3c34" />
     </linearGradient>
     <linearGradient id="infinity-armor" x1="0%" y1="0%" x2="94%" y2="100%">
-      <stop stop-color="#646178" />
-      <stop offset=".27" stop-color="#34354f" />
-      <stop offset=".7" stop-color="#171c34" />
-      <stop offset="1" stop-color="#35354d" />
+      <stop stop-color="#ffe7ab" />
+      <stop offset=".18" stop-color="#bc824e" />
+      <stop offset=".48" stop-color="#50384b" />
+      <stop offset=".74" stop-color="#714656" />
+      <stop offset="1" stop-color="#efbd76" />
     </linearGradient>
     <linearGradient id="infinity-plate" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop stop-color="#8b8290" />
-      <stop offset=".22" stop-color="#45445d" />
-      <stop offset=".68" stop-color="#252b43" />
-      <stop offset="1" stop-color="#131c35" />
+      <stop stop-color="#fff0c2" />
+      <stop offset=".22" stop-color="#c89659" />
+      <stop offset=".6" stop-color="#523d50" />
+      <stop offset="1" stop-color="#b5764b" />
     </linearGradient>
     <radialGradient id="infinity-glyph-gradient">
       <stop stop-color="#bd9d71" />
@@ -63,11 +65,13 @@ export const gloveSvg = html`<svg
     <path class="palm-rim" d="M151 319 L215 305 L291 304 L359 324 L390 346 L399 376 L388 414 L357 447 L306 468 L252 478 L187 463 L143 434 L122 399 L125 362 Z" />
     <path class="palm-panel" d="M168 340 L220 321 L291 319 L346 342 L369 368 L363 409 L330 441 L283 453 L222 450 L174 428 L146 394 L146 363 Z" />
     <path class="palm-etch" d="M168 350 L199 375 L194 411 M347 352 L321 376 L328 417 M212 329 L226 351 M290 325 L283 349 M178 433 L207 420 M338 435 L306 421" />
+    <path class="palm-shine" d="M151 374 Q178 335 221 331 M311 326 Q353 340 374 367 M177 425 Q249 468 326 432" />
     <path class="palm-glyph" d="M250 337 L287 355 L304 394 L285 429 L249 446 L215 426 L197 390 L216 355 Z M250 350 L278 365 L290 392 L275 418 L250 432 L226 416 L212 390 L226 365 Z" />
 
     <path class="cuff" d="M151 465 Q251 504 377 463 L388 498 Q268 542 145 501 Z" />
     <path class="cuff-panel" d="M159 476 Q263 509 370 475 L374 492 Q269 525 157 493 Z" />
     <path class="cuff-detail" d="M167 489 Q265 516 363 488 M183 514 L207 540 M337 513 L320 540" />
+    <path class="cuff-shine" d="M166 480 Q260 512 366 479 M170 519 Q262 551 354 518" />
     <circle class="rivet" cx="145" cy="374" r="4" />
     <circle class="rivet" cx="370" cy="375" r="4" />
     <circle class="rivet" cx="182" cy="449" r="4" />

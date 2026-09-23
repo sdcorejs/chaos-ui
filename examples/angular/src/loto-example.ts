@@ -17,6 +17,7 @@ import {
       <p>
         Tin nhắn vừa nhận: <strong>000000</strong>. The host checks this demo
         code. Nguồn bóng được xáo độc lập với mã và có thể lấy lặp lại.
+        Bàn nhung và bóng nổi đều nằm trong package core.
       </p>
       <chaos-loto-otp
         [formControl]="control"

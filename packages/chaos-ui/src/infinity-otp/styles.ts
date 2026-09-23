@@ -96,6 +96,7 @@ export const infinityStyles = css`
     aspect-ratio: 500/560;
     position: relative;
     margin: 5px auto -8px;
+    isolation: isolate;
   }
   .stage::before {
     content: "";
@@ -124,11 +125,73 @@ export const infinityStyles = css`
     background: radial-gradient(circle, #f5de8daa, transparent 65%);
   }
   .gauntlet {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
     display: block;
     width: 100%;
     height: 100%;
     overflow: visible;
-    filter: drop-shadow(0 18px 16px #070916d9);
+    filter: drop-shadow(0 22px 16px #070916df) drop-shadow(0 0 18px #efc26844);
+  }
+  .titan {
+    position: absolute;
+    z-index: 1;
+    left: -1%;
+    top: 4%;
+    width: 32%;
+    overflow: visible;
+    pointer-events: none;
+    filter: drop-shadow(0 11px 14px #090a1caa);
+  }
+  .titan .surprised-mouth {
+    opacity: 0;
+  }
+  .titan .eye,
+  .titan .pupil,
+  .titan .brow,
+  .titan .smile,
+  .titan .surprised-mouth {
+    transition: transform 180ms ease, opacity 180ms ease;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .error .titan {
+    animation: titan-recoil 820ms cubic-bezier(.18,.78,.3,1.3) 1 both;
+  }
+  .error .titan .brow-left {
+    transform: translate(-2px, -12px) rotate(-8deg);
+  }
+  .error .titan .brow-right {
+    transform: translate(2px, -12px) rotate(8deg);
+  }
+  .error .titan .eye {
+    transform: scaleY(1.38);
+  }
+  .error .titan .pupil {
+    transform: translateY(-3px) scale(.8);
+  }
+  .error .titan .smile {
+    opacity: 0;
+  }
+  .error .titan .surprised-mouth {
+    opacity: 1;
+  }
+  .failed-snap {
+    position: absolute;
+    z-index: 5;
+    top: 13%;
+    right: 0;
+    padding: 8px 12px;
+    border: 2px solid #ffbfcc;
+    border-radius: 14px 14px 14px 3px;
+    background: #35243fe8;
+    color: #fff2ee;
+    box-shadow: 0 8px 20px #09091799, 0 0 18px #ff8fa455;
+    font: 900 clamp(13px, 3cqi, 21px)/1 system-ui;
+    letter-spacing: .03em;
+    transform: rotate(6deg);
+    animation: failure-pop 650ms cubic-bezier(.18,1.3,.35,1) 1 both;
   }
   .orbit ellipse {
     stroke: #c4a77c;
@@ -216,6 +279,14 @@ export const infinityStyles = css`
     opacity: 0.66;
     stroke-linecap: round;
   }
+  .palm-shine,
+  .cuff-shine {
+    fill: none;
+    stroke: #fff1bf;
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: .85;
+  }
   .palm-glyph {
     fill: url(#infinity-glyph-gradient);
     fill-rule: evenodd;
@@ -251,8 +322,19 @@ export const infinityStyles = css`
   .success .snap-fingers {
     animation: snap 0.68s cubic-bezier(0.15, 0.9, 0.3, 1) 1 both;
   }
+  .error .snap-fingers {
+    animation: snap-fail .72s cubic-bezier(.16,.9,.25,1) 1 both;
+  }
+  .success .gauntlet,
+  .success .sockets {
+    animation: ash-away 2.4s ease-out 1 both;
+  }
+  .success .pool {
+    animation: ash-away 2.4s ease-out .14s 1 both;
+  }
   .sockets {
     position: absolute;
+    z-index: 4;
     inset: 0;
   }
   .socket-wrap {
@@ -482,23 +564,43 @@ export const infinityStyles = css`
   }
   .dust {
     position: absolute;
+    z-index: 5;
     inset: 0;
     pointer-events: none;
     overflow: hidden;
   }
+  .dust::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 24%;
+    aspect-ratio: 1;
+    border: 4px solid #ffeec5;
+    border-radius: 50%;
+    box-shadow: 0 0 26px #ffe8a8, inset 0 0 26px #ffe8a8;
+    transform: translate(-50%, -50%) scale(.15);
+    opacity: 0;
+    animation: snap-wave .85s ease-out .36s 1 both;
+  }
   .dust i {
     position: absolute;
-    left: 53%;
-    top: 54%;
-    width: 8px;
-    height: 8px;
-    border-radius: 3px;
-    background: #ffe5a1;
-    box-shadow: 0 0 9px #fff2bb;
+    left: var(--x);
+    top: var(--y);
+    width: 10px;
+    height: 14px;
+    clip-path: polygon(0 8%, 76% 0, 100% 60%, 24% 100%);
+    background: #ffe7ad;
+    box-shadow: 0 0 12px #fff2bb;
     opacity: 0;
-    animation: dust-out 1.3s ease-out 1 both;
-    animation-delay: calc(var(--i) * 35ms);
-    --angle: calc(var(--i) * 30deg);
+    animation: dust-out 1.9s cubic-bezier(.15,.6,.4,1) 1 both;
+    animation-delay: calc(250ms + var(--i) * 18ms);
+  }
+  .dust i:nth-child(3n) {
+    background: #d3b7ec;
+  }
+  .dust i:nth-child(4n) {
+    background: #7f6c9d;
   }
   .drag-stone {
     position: fixed;
@@ -540,6 +642,27 @@ export const infinityStyles = css`
       transform: rotate(5deg);
     }
   }
+  @keyframes snap-fail {
+    0%, 100% { transform: rotate(0); }
+    35% { transform: rotate(-13deg) translate(-5px, 8px); }
+    58% { transform: rotate(2deg) translate(2px, -1px); }
+    72% { transform: rotate(-3deg); }
+  }
+  @keyframes titan-recoil {
+    0%, 30% { transform: translate(0, 0) scale(1); }
+    58% { transform: translate(-8px, -12px) scale(1.13) rotate(-7deg); }
+    100% { transform: translate(-3px, -5px) scale(1.07) rotate(-3deg); }
+  }
+  @keyframes failure-pop {
+    from { opacity: 0; transform: translateY(20px) scale(.5) rotate(-12deg); }
+    to { opacity: 1; transform: translateY(0) scale(1) rotate(6deg); }
+  }
+  @keyframes ash-away {
+    0%, 22% { opacity: 1; filter: blur(0) saturate(1); }
+    62% { opacity: .08; filter: blur(6px) saturate(.4); }
+    76% { opacity: 0; filter: blur(10px) saturate(.2); }
+    100% { opacity: 1; filter: blur(0) saturate(1); }
+  }
   @keyframes stone-error {
     0%,
     100% {
@@ -550,14 +673,22 @@ export const infinityStyles = css`
     }
   }
   @keyframes dust-out {
-    0% {
-      transform: rotate(var(--angle)) translateX(0) scale(1.4);
+    0%, 10% {
+      transform: translate(0, 0) rotate(0) scale(.4);
+      opacity: 0;
+    }
+    30%, 70% {
       opacity: 1;
     }
     100% {
-      transform: rotate(var(--angle)) translateX(200px) scale(0.1);
+      transform: translate(var(--dx), var(--dy)) rotate(120deg) scale(.18);
       opacity: 0;
     }
+  }
+  @keyframes snap-wave {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.15); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(4.5); }
   }
   @media (max-width: 700px) {
     .board {

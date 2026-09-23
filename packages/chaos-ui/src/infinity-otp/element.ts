@@ -16,6 +16,7 @@ import {
 } from "../otp-interaction.js";
 import { OtpAudio } from "../otp-audio.js";
 import { gloveSvg } from "./glove.js";
+import { titanSvg } from "./titan.js";
 import { infinityStyles } from "./styles.js";
 
 /** Shared OTP options with six fixed sockets; `length` is intentionally unavailable.
@@ -54,6 +55,7 @@ const words = {
     input: "Nhập thông thường",
     game: "Chơi xếp đá",
     badge: "BÚNG!",
+    failedSnap: "Ơ KÌA?!",
   },
   en: {
     title: "INFINITY GAUNTLET",
@@ -76,6 +78,7 @@ const words = {
     input: "Standard input",
     game: "Arrange stones",
     badge: "SNAP!",
+    failedSnap: "WAIT... WHAT?!",
   },
 };
 
@@ -451,7 +454,13 @@ export class ChaosInfinityOtpElement
       </header>
       <div part="stage" class="stage">
         <div class="halo" aria-hidden="true"></div>
+        ${titanSvg}
         ${gloveSvg}
+        ${state === "error"
+          ? html`<span part="failed-snap" class="failed-snap" aria-hidden="true"
+              >${t.failedSnap}</span
+            >`
+          : nothing}
         <div part="sockets" class="sockets" role="group" aria-label=${t.title}>
           ${values.map(
             (digit, index) =>
@@ -510,8 +519,10 @@ export class ChaosInfinityOtpElement
         ${state === "success"
           ? html`<div part="dust" class="dust" aria-hidden="true">
               ${Array.from(
-                { length: 12 },
-                (_, i) => html`<i style=${`--i:${i}`}></i>`,
+                { length: 24 },
+                (_, i) => html`<i
+                  style=${`--i:${i};--x:${16 + ((i * 37) % 69)}%;--y:${19 + ((i * 47) % 62)}%;--dx:${((i * 31) % 161) - 80}px;--dy:${-90 - ((i * 17) % 90)}px`}
+                ></i>`,
               )}
             </div>`
           : nothing}

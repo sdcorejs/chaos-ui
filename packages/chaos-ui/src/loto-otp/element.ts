@@ -20,6 +20,8 @@ import {
   type OtpSelection,
 } from "../otp-interaction.js";
 
+const feltArtUrl = new URL("../../assets/loto-felt.png", import.meta.url).href;
+
 type Selection = OtpSelection;
 type Drag = Selection & {
   id: number;
@@ -535,7 +537,13 @@ export class ChaosLotoOtpElement extends LitElement implements OtpProps {
         )}
       </div>
       ${this.mode === "game"
-        ? html`<div part="pool" class="pool" role="group" aria-label=${t.pool}>
+        ? html`<div
+            part="pool"
+            class="pool"
+            role="group"
+            aria-label=${t.pool}
+            style=${`--loto-art-url:url("${feltArtUrl}")`}
+          >
             ${this.poolBalls.map(
               ({ digit, x, y, tilt, delay }) =>
                 html`<button
