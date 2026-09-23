@@ -123,7 +123,8 @@ Host CSS variables inherit through both wrappers. No watermark is required.
 | ------------------ | ---------------------------------------- |
 | `--loto-ink`       | `#272b25`                                |
 | `--loto-surface`   | `#fffdf5`                                |
-| `--loto-pool`      | `#f0deda`                                |
+| `--loto-pool`      | `#064333`                                |
+| `--loto-pool-art`  | Bundled emerald-felt illustration (`none` to hide it) |
 | `--loto-ball`      | `#f8d976`                                |
 | `--loto-accent`    | `#d9f56e`                                |
 | `--loto-focus`     | `#7553b5`                                |
@@ -148,4 +149,4 @@ chaos-loto-otp chaos-loto-otp-element::part(board) {
 }
 ```
 
-Package imports have no registration/global stylesheet side effects, so `sideEffects: false` remains accurate. CSS and synthesized audio are bundled; no playground asset paths or new animation libraries are used.
+The pool uses an original illustrated felt texture shipped in `@sdcorejs/chaos-ui/assets/loto-felt.png`; the runtime resolves it relative to the package, not the playground. Ball numbers remain real text over CSS-drawn glossy spheres, so repeats and zeroes stay legible and keyboard-accessible. Package imports have no registration/global stylesheet side effects, so `sideEffects: false` remains accurate. No new animation libraries are used.

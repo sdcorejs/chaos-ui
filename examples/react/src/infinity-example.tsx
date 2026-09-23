@@ -23,6 +23,7 @@ export function InfinityExample() {
       <p>
         Tín hiệu vừa nhận: <strong>001122</strong>. Ứng dụng mẫu kiểm tra mã sau
         khi búng tay. Sáu hốc trên giáp tay giữ thứ tự 01–06.
+        Sai mã thì titan búng hụt và ngạc nhiên; đúng mã thì lớp trò chơi tan thành bụi trong chốc lát.
       </p>
       <InfinityOtp
         slots={slots}

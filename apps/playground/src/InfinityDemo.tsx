@@ -85,7 +85,8 @@ export function InfinityDemo() {
         </label>
       </div>
       <p className="loto-footnote">
-        Sáu hốc có thứ tự rõ ràng; mỗi đá số có thể lấy lặp lại.
+        Sáu hốc có thứ tự rõ ràng; mỗi đá số có thể lấy lặp lại. Sai mã:
+        búng hụt và ngạc nhiên. Đúng mã: bụi tan trong vùng trò chơi.
       </p>
     </div>
   );

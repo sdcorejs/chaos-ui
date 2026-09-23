@@ -82,6 +82,11 @@ for (const name of [
     `${name}: leaked workspace protocol`,
   );
   assert.equal(manifest.sideEffects, false);
+  if (name === "@sdcorejs/chaos-ui")
+    assert(
+      readFileSync(join(dir, "assets", "loto-felt.png")).length > 0,
+      "Loto artwork must ship with the packed core package",
+    );
   assert(
     !readdirSync(dir, { recursive: true }).some((f) =>
       /testing|probe/.test(String(f)),

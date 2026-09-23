@@ -269,7 +269,7 @@ test("Infinity effects stay local, run once per success transition, and stop on 
   await expect(one.getByText("BÚNG!", { exact: true })).toBeVisible();
   await expect(two.getByText("BÚNG!", { exact: true })).toHaveCount(0);
   await expect(page.locator("#outside-marker")).toHaveText("Still here");
-  await expect(one.locator(".dust i")).toHaveCount(12);
+  await expect(one.locator(".dust i")).toHaveCount(24);
   await expect(one).toHaveAttribute("data-snap-starts", "1");
   await page.waitForTimeout(750);
   await one.evaluate((el: ChaosInfinityOtpElement) => {
@@ -283,6 +283,22 @@ test("Infinity effects stay local, run once per success transition, and stop on 
   });
   await expect(one.locator(".dust i")).toHaveCount(0);
   await expect(one.getByText("BÚNG!", { exact: true })).toHaveCount(0);
+  await one.evaluate((el: ChaosInfinityOtpElement) => {
+    el.slots = ["9", "9", "9", "9", "9", "9"];
+    el.status = "error";
+  });
+  await expect(one.locator('[part="failed-snap"]')).toHaveText("Ơ KÌA?!");
+  await expect(one.locator(".titan .surprised-mouth")).toHaveCSS("opacity", "1");
+  await expect(one.locator(".snap-fingers")).toHaveCSS(
+    "animation-name",
+    "snap-fail",
+  );
+  await expect(page.locator("#outside-marker")).toHaveText("Still here");
+  await one.evaluate((el: ChaosInfinityOtpElement) => {
+    el.reset();
+    el.status = "idle";
+  });
+  await expect(one.locator('[part="failed-snap"]')).toHaveCount(0);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await two.evaluate((el: ChaosInfinityOtpElement) => {
     el.status = "success";
@@ -321,10 +337,21 @@ test("Infinity playground: delayed result, retry, localized snap and responsive 
   await expect(
     game.getByText("Chưa đúng mã. Hãy thay viên đá cần sửa.", { exact: true }),
   ).toBeVisible();
+  await expect(game.locator('[part="failed-snap"]')).toBeVisible();
+  await page.locator("#demo").screenshot({
+    path: `output/playwright/infinity-error-${isMobile ? "mobile" : "desktop"}.png`,
+  });
   await slots(game).first().focus();
   await page.keyboard.type(code);
   await page.keyboard.press("Enter");
   await expect(game.getByText("BÚNG!", { exact: true })).toBeVisible();
+  if (!isMobile) {
+    await page.waitForTimeout(1100);
+    const ashOpacity = await game.locator(".gauntlet").evaluate((node) =>
+      Number(getComputedStyle(node).opacity),
+    );
+    expect(ashOpacity).toBeLessThan(0.9);
+  }
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
