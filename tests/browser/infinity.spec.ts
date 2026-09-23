@@ -260,7 +260,7 @@ test("Infinity effects stay local, run once per success transition, and stop on 
   await one.evaluate((el: ChaosInfinityOtpElement) => {
     el.dataset.snapStarts = "0";
     el.shadowRoot?.addEventListener("animationstart", (event) => {
-      if ((event as AnimationEvent).animationName === "snap")
+      if ((event as AnimationEvent).animationName === "contact-frame")
         el.dataset.snapStarts = String(Number(el.dataset.snapStarts) + 1);
     });
     el.slots = ["0", "0", "1", "1", "2", "2"];
@@ -288,10 +288,12 @@ test("Infinity effects stay local, run once per success transition, and stop on 
     el.status = "error";
   });
   await expect(one.locator('[part="failed-snap"]')).toHaveText("Ơ KÌA?!");
+  await expect(one.locator('[part="failed-snap"]')).toHaveCSS("animation-delay", "0.6s");
   await expect(one.locator(".titan .surprised-mouth")).toHaveCSS("opacity", "1");
-  await expect(one.locator(".snap-fingers")).toHaveCSS(
+  await expect(one.locator(".titan .surprised-mouth")).toHaveCSS("transition-delay", "0.58s");
+  await expect(one.locator(".glove-contact")).toHaveCSS(
     "animation-name",
-    "snap-fail",
+    "contact-frame",
   );
   await expect(page.locator("#outside-marker")).toHaveText("Still here");
   await one.evaluate((el: ChaosInfinityOtpElement) => {
@@ -306,11 +308,60 @@ test("Infinity effects stay local, run once per success transition, and stop on 
   await expect(two.getByText("BÚNG!", { exact: true })).toBeVisible();
   expect(
     await two
-      .locator(".snap-fingers")
+      .locator(".glove-contact")
       .evaluate((el) => getComputedStyle(el).animationName),
   ).toBe("none");
   await two.evaluate((el: ChaosInfinityOtpElement) => el.remove());
   await expect(page.locator("#outside-marker")).toHaveText("Still here");
+});
+
+test("Infinity snap shows distinct contact and finger-release frames", async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto("http://127.0.0.1:5174");
+  await page.evaluate(() => {
+    const el = document.createElement("chaos-infinity-otp-element") as ChaosInfinityOtpElement;
+    el.id = "snap-frames";
+    document.body.prepend(el);
+    el.slots = ["0", "0", "1", "1", "2", "2"];
+    el.status = "success";
+  });
+  const game = page.locator("#snap-frames");
+  await expect(game.locator(".glove-frame")).toHaveCount(3);
+  await expect.poll(() => game.locator(".glove-frame").evaluateAll((images) =>
+    images.every((image) => (image as HTMLImageElement).naturalWidth > 0),
+  )).toBe(true);
+  const frameAt = async (time: number) => game.evaluate((host, ms) => {
+    const frames = [".glove-contact", ".glove-release", ".glove-open"].map((selector) =>
+      host.shadowRoot!.querySelector<HTMLElement>(selector)!,
+    );
+    for (const socket of host.shadowRoot!.querySelectorAll<HTMLElement>(".socket-wrap")) {
+      const animation = socket.getAnimations()[0]!;
+      animation.pause();
+      animation.currentTime = ms;
+    }
+    return frames.map((frame) => {
+      const animation = frame.getAnimations()[0]!;
+      animation.pause();
+      animation.currentTime = ms;
+      return Number(getComputedStyle(frame).opacity);
+    });
+  }, time);
+  expect(await frameAt(350)).toEqual([1, 0, 0]);
+  await expect(game.locator(".socket-wrap").first()).toHaveCSS("opacity", "0");
+  await game.locator(".stage").screenshot({
+    path: `output/playwright/infinity-snap-contact-${isMobile ? "mobile" : "desktop"}.png`,
+  });
+  expect(await frameAt(700)).toEqual([0, 1, 0]);
+  await game.locator(".stage").screenshot({
+    path: `output/playwright/infinity-snap-release-${isMobile ? "mobile" : "desktop"}.png`,
+  });
+  await game.evaluate((host: ChaosInfinityOtpElement) => {
+    host.reset();
+    host.status = "idle";
+  });
+  await expect(game.locator(".glove-contact")).toHaveCSS("animation-name", "none");
 });
 
 test("Infinity playground: delayed result, retry, localized snap and responsive drop targets", async ({

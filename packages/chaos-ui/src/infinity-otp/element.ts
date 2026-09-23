@@ -15,7 +15,8 @@ import {
   type OtpSelection,
 } from "../otp-interaction.js";
 import { OtpAudio } from "../otp-audio.js";
-import { gloveSvg } from "./glove.js";
+import { gloveArtwork } from "./glove.js";
+import { gemSvg } from "./gem.js";
 import { titanSvg } from "./titan.js";
 import { infinityStyles } from "./styles.js";
 
@@ -33,6 +34,7 @@ type Drag = OtpSelection & {
   moved: boolean;
 };
 const digits: OtpDigit[] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+const sourceColors = ["#baa6e4", "#93c9e6", "#e1afd2", "#d4bf8a", "#8ad8c3"] as const;
 const words = {
   vi: {
     title: "GĂNG TAY VÔ CỰC",
@@ -141,6 +143,10 @@ export class ChaosInfinityOtpElement
   private ignoreClickUntil = 0;
   private pendingFocus = 0;
   private readonly audio = new OtpAudio();
+  private readonly poolCuts = digits.map(() => Math.floor(Math.random() * 6));
+  private readonly poolColors = digits.map(() =>
+    sourceColors[Math.floor(Math.random() * sourceColors.length)],
+  );
 
   constructor() {
     super();
@@ -455,7 +461,7 @@ export class ChaosInfinityOtpElement
       <div part="stage" class="stage">
         <div class="halo" aria-hidden="true"></div>
         ${titanSvg}
-        ${gloveSvg}
+        ${gloveArtwork}
         ${state === "error"
           ? html`<span part="failed-snap" class="failed-snap" aria-hidden="true"
               >${t.failedSnap}</span
@@ -508,8 +514,9 @@ export class ChaosInfinityOtpElement
                           this.pointerDown({ digit, source: index }, e);
                       }}
                     >
+                      ${digit === null ? nothing : gemSvg(index)}
                       <span class="gem-shape" aria-hidden="true"
-                        >${["◆", "✦", "⬟", "◇", "✧", "⬢"][index]}</span
+                        >${["✦", "✧", "✳", "◇", "✶", "✴"][index]}</span
                       >
                       <span class="socket-digit">${digit ?? "·"}</span>
                     </button>`}
@@ -535,6 +542,7 @@ export class ChaosInfinityOtpElement
                   type="button"
                   part="stone source"
                   class="source"
+                  style=${`--gem:${this.poolColors[Number(digit)]}`}
                   aria-label=${`${t.pick} ${digit}`}
                   aria-pressed=${this.selection?.source === null &&
                   this.selection.digit === digit}
@@ -543,8 +551,7 @@ export class ChaosInfinityOtpElement
                   @pointerdown=${(e: PointerEvent) =>
                     this.pointerDown({ digit, source: null }, e)}
                 >
-                  <span class="source-shape" aria-hidden="true">◆</span
-                  ><strong>${digit}</strong>
+                  ${gemSvg(this.poolCuts[Number(digit)])}<strong>${digit}</strong>
                 </button>`,
             )}
           </div>`
