@@ -24,7 +24,7 @@ export function LotoExample() {
       <h2>Loto OTP · React controlled</h2>
       <p>
         Tin nhắn vừa nhận: <strong>000000</strong>. The host checks this demo
-        code.
+        code. Nguồn bóng được xáo độc lập với mã và có thể lấy lặp lại.
       </p>
       <ChaosLotoOtp
         slots={slots}

@@ -22,7 +22,7 @@ export function InfinityExample() {
       <h2>Infinity OTP · React controlled</h2>
       <p>
         Tín hiệu vừa nhận: <strong>001122</strong>. Ứng dụng mẫu kiểm tra mã sau
-        khi búng tay.
+        khi búng tay. Sáu hốc trên giáp tay giữ thứ tự 01–06.
       </p>
       <InfinityOtp
         slots={slots}

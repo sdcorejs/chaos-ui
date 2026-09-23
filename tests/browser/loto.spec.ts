@@ -19,6 +19,34 @@ test("React rerenders preserve selection when slots have not changed", async ({
   );
 });
 
+test("Loto rerolls every source digit without changing OTP events", async ({
+  page,
+}) => {
+  await page.goto("http://127.0.0.1:5174");
+  const game = page.locator("chaos-loto-otp-element").first();
+  const other = page.locator("chaos-loto-otp-element").nth(1);
+  const order = (element: typeof game) =>
+    element.locator('[part~="source"]').allTextContents().then((values) =>
+      values.map((value) => value.trim()),
+    );
+  const initial = await order(game);
+  const otherInitial = await order(other);
+  expect([...initial].sort()).toEqual(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
+
+  await game.getByRole("button", { name: /Xáo bóng/ }).click();
+  const shuffled = await order(game);
+  expect(shuffled).not.toEqual(initial);
+  expect(await order(other)).toEqual(otherInitial);
+  await expect(page.getByTestId("loto-changes")).toHaveText("0");
+
+  await page.getByRole("button", { name: "Load 112233" }).click();
+  await page.getByRole("button", { name: "Reset from app" }).click();
+  await expect(game.locator("[data-slot]").first()).toHaveAccessibleName("Ô 1: trống");
+  expect(await order(game)).not.toEqual(shuffled);
+  expect(await order(other)).toEqual(otherInitial);
+  await expect(page.getByTestId("loto-changes")).toHaveText("0");
+});
+
 for (const [framework, port] of [
   ["React", 5174],
   ["Angular", 4200],
