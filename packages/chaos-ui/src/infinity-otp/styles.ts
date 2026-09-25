@@ -29,7 +29,7 @@ export const infinityStyles = css`
   }
   .board {
     --stone-size: var(--infinity-stone-size, 58px);
-    --socket-size: var(--infinity-socket-size, 64px);
+    --socket-size: var(--infinity-socket-size, clamp(43px, 16.5cqw, 58px));
     position: relative;
     overflow: hidden;
     isolation: isolate;
@@ -97,6 +97,8 @@ export const infinityStyles = css`
     position: relative;
     margin: 5px auto -8px;
     isolation: isolate;
+    /* Sockets size against the stage, so they never overlap in a narrow host. */
+    container-type: inline-size;
   }
   .stage,
   .pool {
@@ -129,59 +131,124 @@ export const infinityStyles = css`
     opacity: 1;
     background: radial-gradient(circle, #f5de8daa, transparent 65%);
   }
-  .gauntlet {
+  .rig {
     position: absolute;
     z-index: 2;
     inset: 0;
+    transform-origin: 50% 72%;
+  }
+  .gauntlet {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
     pointer-events: none;
-    overflow: hidden;
     filter: drop-shadow(0 15px 13px #070916aa) drop-shadow(0 0 17px #efc26844);
   }
-  .glove-frame {
-    position: absolute;
-    inset: 0 auto auto 0;
-    display: block;
-    width: 100%;
-    height: auto;
-    user-select: none;
+  .finger {
+    transform-box: view-box;
+    transform-origin: 0 0;
   }
-  .glove-contact,
-  .glove-release {
+  .joint { fill: #25162c; }
+  .plate,
+  .edge {
+    stroke: #3a220b;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+  }
+  .rivet { fill: #fbe7ae; stroke: #6b4316; stroke-width: 1; }
+  .prong { fill: #f0cf82; stroke: #5d3a12; stroke-width: 1.2; }
+  .bezel-hole { fill: #1c1426; stroke: #120c1a; stroke-width: 2; }
+  .shine,
+  .engrave,
+  .filigree {
+    fill: none;
+    stroke-linecap: round;
+  }
+  .shine { stroke: #fff6d4; stroke-width: 2.4; opacity: 0.55; }
+  .engrave { stroke: #6f4518; stroke-width: 1.8; opacity: 0.75; }
+  .filigree { stroke: #e7c47a; stroke-width: 2.4; opacity: 0.8; }
+  .contact-glow,
+  .snap-lines,
+  .flick-streak {
     opacity: 0;
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+  }
+  .snap-lines path {
+    fill: none;
+    stroke: #fff6d0;
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+  .flick-streak {
+    fill: none;
+    stroke-width: 12;
+    stroke-linecap: round;
+    stroke-dasharray: 220;
+    stroke-dashoffset: 220;
   }
   .snap-flash {
     position: absolute;
-    left: 72%;
-    top: 19%;
-    width: 20%;
+    z-index: 5;
+    left: 41.6%;
+    top: 23.57%;
+    width: 22%;
     aspect-ratio: 1;
     border-radius: 50%;
     background: radial-gradient(circle, #fffef0 0, #ffe49c 14%, #f4c87855 39%, transparent 70%);
     opacity: 0;
     pointer-events: none;
+    transform: translate(-50%, -50%);
   }
-  .snapping .gauntlet {
-    transform-origin: 58% 75%;
-    animation: snap-camera 2.1s cubic-bezier(.32,.02,.25,1) 1 both;
+  /* One 2.1 s choreography: wind-up, fingertip contact under tension, a fast
+     release (the middle finger slams into the palm while the thumb flicks
+     out), then recovery. Stones stay mounted on rigid armor throughout. */
+  .snapping .rig {
+    animation: rig-snap 2.1s ease-in-out 1 both;
   }
-  .snapping .glove-open {
-    animation: open-frame 2.1s steps(1, end) 1 both;
+  .snapping .f-thumb {
+    animation: thumb-snap 2.1s cubic-bezier(.45,0,.3,1) 1 both;
   }
-  .snapping .glove-contact {
-    animation: contact-frame 2.1s steps(1, end) 1 both;
+  .snapping .f-middle {
+    animation: middle-snap 2.1s cubic-bezier(.45,0,.3,1) 1 both;
   }
-  .snapping .glove-release {
-    animation: release-frame 2.1s steps(1, end) 1 both;
+  .snapping .f-ring {
+    animation: ring-curl 2.1s cubic-bezier(.45,0,.3,1) 1 both;
   }
-  .snapping .socket-wrap {
-    animation: reveal-hand 2.1s ease-in-out 1 both;
+  .snapping .f-pinky {
+    animation: pinky-curl 2.1s cubic-bezier(.45,0,.3,1) 1 both;
+  }
+  .snapping .f-index {
+    animation: index-brace 2.1s cubic-bezier(.45,0,.3,1) 1 both;
+  }
+  .snapping .contact-glow {
+    animation: contact-glow 2.1s ease-in-out 1 both;
+  }
+  .snapping .snap-lines {
+    animation: snap-lines 2.1s ease-out 1 both;
+  }
+  .snapping .flick-streak {
+    animation: flick-streak 2.1s linear 1 both;
+  }
+  .snapping .snap-flash {
+    animation: snap-flash 2.1s ease-out 1 both;
+  }
+  .snapping .socket:disabled {
+    opacity: 1;
+    cursor: progress;
+  }
+  .snapping .socket.filled {
+    animation: gem-charge 2.1s ease-in-out 1 both;
   }
   .snap-impact {
     position: absolute;
     z-index: 5;
-    left: 76%;
-    top: 21%;
-    width: 16%;
+    left: 41.6%;
+    top: 23.57%;
+    width: 18%;
     aspect-ratio: 1;
     border: 3px solid #fff3c9;
     border-radius: 50%;
@@ -207,8 +274,8 @@ export const infinityStyles = css`
   .failed-reaction {
     position: absolute;
     z-index: 6;
-    right: 1%;
-    bottom: 14%;
+    right: 0;
+    bottom: 3%;
     width: min(27%, 122px);
     display: grid;
     justify-items: center;
@@ -236,12 +303,27 @@ export const infinityStyles = css`
   .success .snap-flash {
     animation: contact-flash .9s ease-out 1 both;
   }
-  .success .gauntlet,
-  .success .sockets {
-    animation: ash-away 2.4s ease-out .4s 1 both;
+  /* Success: the glove, its stones and the stone supply crumble to ash from
+     left to right (the dust layer sheds flakes along the edge), then re-form. */
+  .success .rig,
+  .success .pool {
+    -webkit-mask-image: linear-gradient(105deg, transparent 0 47%, #000 53% 100%);
+    mask-image: linear-gradient(105deg, transparent 0 47%, #000 53% 100%);
+    -webkit-mask-size: 300% 100%;
+    mask-size: 300% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  .success .rig {
+    animation: ash-sweep 3.2s linear 0.35s 1 both;
   }
   .success .pool {
-    animation: ash-away 2.4s ease-out .54s 1 both;
+    animation: ash-sweep 3.2s linear 0.6s 1 both;
+  }
+  .success .halo {
+    animation: halo-ash 3.2s linear 0.35s 1 both;
   }
   .sockets {
     position: absolute;
@@ -257,33 +339,33 @@ export const infinityStyles = css`
     height: var(--socket-size);
   }
   .pos-1 {
-    left: 41%;
-    top: 31%;
+    left: 32%;
+    top: 47.86%;
     --gem: #70d8d4;
   }
   .pos-2 {
-    left: 55%;
-    top: 28%;
+    left: 50%;
+    top: 43.93%;
     --gem: #e3a6ff;
   }
   .pos-3 {
-    left: 69%;
-    top: 31%;
+    left: 68%;
+    top: 45.71%;
     --gem: #e89abb;
   }
   .pos-4 {
-    left: 79%;
-    top: 39%;
+    left: 86%;
+    top: 50.71%;
     --gem: #9ee4a4;
   }
   .pos-5 {
-    left: 21%;
-    top: 52%;
+    left: 28%;
+    top: 64.64%;
     --gem: #f3b37a;
   }
   .pos-6 {
-    left: 56%;
-    top: 55%;
+    left: 59%;
+    top: 63.93%;
     --gem: #f1d680;
   }
   .order {
@@ -489,7 +571,6 @@ export const infinityStyles = css`
     z-index: 5;
     inset: 0;
     pointer-events: none;
-    overflow: hidden;
   }
   .dust::before {
     content: "";
@@ -509,20 +590,18 @@ export const infinityStyles = css`
     position: absolute;
     left: var(--x);
     top: var(--y);
-    width: 10px;
-    height: 14px;
+    width: var(--s);
+    height: calc(var(--s) * 1.3);
+    background: var(--c);
     clip-path: polygon(0 8%, 76% 0, 100% 60%, 24% 100%);
-    background: #ffe7ad;
-    box-shadow: 0 0 12px #fff2bb;
     opacity: 0;
-    animation: dust-out 1.9s cubic-bezier(.15,.6,.4,1) 1 both;
-    animation-delay: calc(250ms + var(--i) * 18ms);
+    animation: ash-fly var(--t) cubic-bezier(0.2, 0.55, 0.35, 1) var(--d) 1 both;
   }
-  .dust i:nth-child(3n) {
-    background: #d3b7ec;
+  .dust i.k1 {
+    clip-path: polygon(10% 0, 100% 25%, 70% 100%, 0 70%);
   }
-  .dust i:nth-child(4n) {
-    background: #7f6c9d;
+  .dust i.k2 {
+    clip-path: polygon(50% 0, 100% 100%, 0 80%);
   }
   .drag-stone {
     position: fixed;
@@ -546,63 +625,227 @@ export const infinityStyles = css`
     animation: none !important;
     transition: none !important;
   }
-  .no-motion .dust {
-    display: none;
-  }
   .no-motion.success .halo {
     opacity: 1;
   }
-  @keyframes contact-frame {
-    0%, 17% { opacity: 0; }
-    18%, 57% { opacity: 1; }
-    58%, 100% { opacity: 0; }
+  /* Reduced motion: nothing travels. The glove fades into a still snap pose
+     with glowing stones, then fades back once the result is shown. */
+  .no-motion.snapping .rig {
+    animation: pose-in 0.2s ease-out 1 both !important;
   }
-  @keyframes open-frame {
-    0%, 17% { opacity: 1; }
-    18%, 90% { opacity: 0; }
-    91%, 100% { opacity: 1; }
+  .no-motion.snap-done .rig {
+    animation: pose-out 0.2s ease-out 1 both !important;
   }
-  @keyframes release-frame {
-    0%, 57% { opacity: 0; }
-    58%, 90% { opacity: 1; }
-    91%, 100% { opacity: 0; }
+  /* Reduced-motion success: nothing travels. The glove and supply fade to
+     ashen gray while still flakes appear beside it, then everything returns. */
+  .no-motion.success .rig,
+  .no-motion.success .pool,
+  .no-motion.success .halo {
+    -webkit-mask-image: none;
+    mask-image: none;
+    animation: ash-still 2.6s ease-in-out 1 both !important;
+  }
+  .no-motion.success .dust i {
+    transform: translate(calc(var(--dx) * 0.3), calc(var(--dy) * 0.3)) rotate(var(--r));
+    animation: ash-still-flake 2.6s ease-in-out 1 both !important;
+  }
+  .no-motion.snapping .f-thumb { transform: rotate(56deg) scaleY(1.34); }
+  .no-motion.snapping .f-middle { transform: rotate(-16deg) scaleY(0.62); }
+  .no-motion.snapping .f-ring { transform: rotate(4deg) scaleY(0.3); }
+  .no-motion.snapping .f-pinky { transform: rotate(8deg) scaleY(0.34); }
+  .no-motion.snapping .f-index { transform: rotate(-12deg) scaleY(0.96); }
+  .no-motion.snapping .contact-glow {
+    opacity: 0.7;
+  }
+  .no-motion.snapping .snap-lines,
+  .no-motion.snapping .snap-caption {
+    opacity: 1;
+  }
+  .no-motion.snapping .socket.filled {
+    box-shadow:
+      0 5px 0 #17172b,
+      0 0 0 4px #f4d58e,
+      0 0 40px 8px var(--gem);
+  }
+  @keyframes pose-in {
+    from { opacity: 0.2; }
+    to { opacity: 1; }
+  }
+  @keyframes pose-out {
+    from { opacity: 0.2; }
+    to { opacity: 1; }
+  }
+  @keyframes rig-snap {
+    0% { transform: translate(0, 0) rotate(0) scale(1); }
+    8% { transform: translate(0, 1.4%) rotate(-1.6deg) scale(0.99); }
+    24% { transform: translate(0, -0.6%) rotate(1deg) scale(1.03); }
+    30% { transform: translate(0.3%, -0.6%) rotate(1.5deg) scale(1.03); }
+    34% { transform: translate(-0.3%, -0.6%) rotate(0.6deg) scale(1.03); }
+    38% { transform: translate(0.3%, -0.6%) rotate(1.5deg) scale(1.035); }
+    42% { transform: translate(-0.3%, -0.6%) rotate(0.6deg) scale(1.035); }
+    46% { transform: translate(0.3%, -0.7%) rotate(1.6deg) scale(1.04); }
+    50% { transform: translate(0, -0.7%) rotate(1deg) scale(1.04); animation-timing-function: ease-out; }
+    53% { transform: translate(0, -2.2%) rotate(-3deg) scale(1.07); }
+    57% { transform: translate(0, 0.6%) rotate(1.6deg) scale(1.02); }
+    62% { transform: translate(0, -0.3%) rotate(-0.6deg) scale(1.01); }
+    70%, 100% { transform: translate(0, 0) rotate(0) scale(1); }
+  }
+  @keyframes thumb-snap {
+    0% { transform: rotate(0) scaleY(1); }
+    8% { transform: rotate(-8deg) scaleY(1); }
+    24% { transform: rotate(56deg) scaleY(1.34); }
+    50% { transform: rotate(54.5deg) scaleY(1.32); animation-timing-function: cubic-bezier(.1,.8,.3,1); }
+    52.5% { transform: rotate(-12deg) scaleY(1.02); }
+    58% { transform: rotate(-4deg) scaleY(1); }
+    64% { transform: rotate(-7deg) scaleY(1); }
+    80%, 100% { transform: rotate(0) scaleY(1); }
+  }
+  @keyframes middle-snap {
+    0% { transform: rotate(0) scaleY(1); }
+    8% { transform: rotate(2deg) scaleY(1.02); }
+    24% { transform: rotate(-16deg) scaleY(0.62); }
+    50% { transform: rotate(-17deg) scaleY(0.6); animation-timing-function: cubic-bezier(.1,.8,.3,1); }
+    52.5% { transform: rotate(-4deg) scaleY(0.16); }
+    62% { transform: rotate(-3deg) scaleY(0.2); }
+    72% { transform: rotate(-6deg) scaleY(0.45); }
+    86%, 100% { transform: rotate(0) scaleY(1); }
+  }
+  @keyframes ring-curl {
+    0% { transform: rotate(0) scaleY(1); }
+    8% { transform: rotate(2deg) scaleY(1); }
+    24%, 50% { transform: rotate(4deg) scaleY(0.3); }
+    55% { transform: rotate(5deg) scaleY(0.26); }
+    72% { transform: rotate(3deg) scaleY(0.5); }
+    88%, 100% { transform: rotate(0) scaleY(1); }
+  }
+  @keyframes pinky-curl {
+    0% { transform: rotate(0) scaleY(1); }
+    8% { transform: rotate(3deg) scaleY(1); }
+    24%, 50% { transform: rotate(8deg) scaleY(0.34); }
+    55% { transform: rotate(9deg) scaleY(0.3); }
+    72% { transform: rotate(5deg) scaleY(0.55); }
+    88%, 100% { transform: rotate(0) scaleY(1); }
+  }
+  @keyframes index-brace {
+    0% { transform: rotate(0) scaleY(1); }
+    8% { transform: rotate(-3deg) scaleY(1); }
+    24%, 50% { transform: rotate(-12deg) scaleY(0.96); }
+    53% { transform: rotate(2deg) scaleY(1); }
+    60% { transform: rotate(-2deg) scaleY(1); }
+    72%, 100% { transform: rotate(0) scaleY(1); }
+  }
+  @keyframes contact-glow {
+    0%, 18% { opacity: 0; transform: scale(0.3); }
+    24% { opacity: 0.7; transform: scale(1); }
+    30% { opacity: 0.5; transform: scale(0.85); }
+    36% { opacity: 0.8; transform: scale(1.1); }
+    42% { opacity: 0.55; transform: scale(0.9); }
+    50% { opacity: 0.9; transform: scale(1.3); }
+    53% { opacity: 0; transform: scale(2.2); }
+    100% { opacity: 0; transform: scale(0.3); }
+  }
+  @keyframes snap-lines {
+    0%, 51% { opacity: 0; transform: scale(0.4); }
+    53.5% { opacity: 1; transform: scale(1); }
+    66%, 100% { opacity: 0; transform: scale(1.8); }
+  }
+  @keyframes flick-streak {
+    0%, 50% { opacity: 0; stroke-dashoffset: 220; }
+    51% { opacity: 1; stroke-dashoffset: 150; }
+    54% { opacity: 0.85; stroke-dashoffset: 0; }
+    61%, 100% { opacity: 0; stroke-dashoffset: -80; }
+  }
+  @keyframes snap-flash {
+    0%, 50% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+    53% { opacity: 1; transform: translate(-50%, -50%) scale(1.4); }
+    64%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(2.6); }
+  }
+  @keyframes gem-charge {
+    0%, 16% {
+      box-shadow: 0 5px 0 #17172b, 0 0 0 4px #8b6949, 0 0 24px 0 var(--gem);
+    }
+    46% {
+      box-shadow: 0 5px 0 #17172b, 0 0 0 4px #d7aa62, 0 0 34px 5px var(--gem);
+    }
+    50% {
+      box-shadow: 0 5px 0 #17172b, 0 0 0 4px #f4d58e, 0 0 40px 8px var(--gem);
+    }
+    53% {
+      box-shadow: 0 5px 0 #17172b, 0 0 0 4px #fff4cf, 0 0 34px 6px #fff6d6;
+    }
+    72%, 100% {
+      box-shadow: 0 5px 0 #17172b, 0 0 0 4px #8b6949, 0 0 24px 0 var(--gem);
+    }
   }
   @keyframes contact-flash {
-    0% { opacity: 0; transform: scale(.1); }
-    28% { opacity: 1; transform: scale(1.5); }
-    100% { opacity: 0; transform: scale(3); }
-  }
-  @keyframes reveal-hand {
-    0%, 15% { opacity: 1; }
-    22%, 86% { opacity: 0; }
-    100% { opacity: 1; }
-  }
-  @keyframes snap-camera {
-    0%, 15% { transform: scale(1) rotate(0); }
-    35%, 56% { transform: scale(1.06) rotate(-5deg); }
-    62% { transform: scale(1.11) rotate(5deg); }
-    82% { transform: scale(1.04) rotate(2deg); }
-    100% { transform: scale(1) rotate(0); }
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.1); }
+    28% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(3); }
   }
   @keyframes snap-impact {
-    0%, 57% { opacity: 0; transform: translate(-50%, -50%) scale(.2); }
-    62% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-    84%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(3.6); }
+    0%, 51% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+    54% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    74%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(3.6); }
   }
   @keyframes snap-letter {
-    0%, 56% { opacity: 0; transform: translateY(15px) scale(.6) rotate(-8deg); }
-    63%, 76% { opacity: 1; transform: translateY(0) scale(1.2) rotate(8deg); }
+    0%, 52% { opacity: 0; transform: translateY(15px) scale(0.6) rotate(-8deg); }
+    57%, 76% { opacity: 1; transform: translateY(0) scale(1.2) rotate(8deg); }
     100% { opacity: 0; transform: translateY(-18px) scale(1) rotate(14deg); }
   }
   @keyframes failure-pop {
     from { opacity: 0; transform: translateY(20px) scale(.5) rotate(-12deg); }
     to { opacity: 1; transform: translateY(0) scale(1) rotate(6deg); }
   }
-  @keyframes ash-away {
-    0%, 22% { opacity: 1; filter: blur(0) saturate(1); }
-    62% { opacity: .08; filter: blur(6px) saturate(.4); }
-    76% { opacity: 0; filter: blur(10px) saturate(.2); }
-    100% { opacity: 1; filter: blur(0) saturate(1); }
+  @keyframes ash-sweep {
+    0% {
+      -webkit-mask-position: 100% 0;
+      mask-position: 100% 0;
+      opacity: 1;
+      filter: none;
+    }
+    40%, 70% {
+      -webkit-mask-position: 0% 0;
+      mask-position: 0% 0;
+      opacity: 1;
+      filter: none;
+    }
+    71% {
+      -webkit-mask-position: 100% 0;
+      mask-position: 100% 0;
+      opacity: 0;
+      filter: blur(6px) brightness(1.5);
+    }
+    100% {
+      -webkit-mask-position: 100% 0;
+      mask-position: 100% 0;
+      opacity: 1;
+      filter: blur(0) brightness(1);
+    }
+  }
+  @keyframes halo-ash {
+    0% { opacity: 1; }
+    40%, 70% { opacity: 0.12; }
+    100% { opacity: 1; }
+  }
+  @keyframes ash-fly {
+    0% { opacity: 0; transform: translate(0, 0) rotate(0) scale(1); }
+    6% { opacity: 1; }
+    60% { opacity: 0.85; }
+    100% {
+      opacity: 0;
+      transform: translate(var(--dx), var(--dy)) rotate(var(--r)) scale(0.35);
+    }
+  }
+  @keyframes ash-still {
+    0% { opacity: 0.2; filter: none; }
+    8% { opacity: 1; filter: none; }
+    22%, 70% { opacity: 0.3; filter: grayscale(1) sepia(0.35) brightness(0.7); }
+    100% { opacity: 1; filter: none; }
+  }
+  @keyframes ash-still-flake {
+    0%, 12% { opacity: 0; }
+    24%, 66% { opacity: 0.9; }
+    100% { opacity: 0; }
   }
   @keyframes stone-error {
     0%,
@@ -613,19 +856,6 @@ export const infinityStyles = css`
       filter: brightness(1.2);
     }
   }
-  @keyframes dust-out {
-    0%, 10% {
-      transform: translate(0, 0) rotate(0) scale(.4);
-      opacity: 0;
-    }
-    30%, 70% {
-      opacity: 1;
-    }
-    100% {
-      transform: translate(var(--dx), var(--dy)) rotate(120deg) scale(.18);
-      opacity: 0;
-    }
-  }
   @keyframes snap-wave {
     0% { opacity: 0; transform: translate(-50%, -50%) scale(.15); }
     20% { opacity: 1; }
@@ -634,7 +864,6 @@ export const infinityStyles = css`
   @media (max-width: 700px) {
     .board {
       --stone-size: 44px;
-      --socket-size: clamp(43px, 13vw, 58px);
       padding: 16px 10px 20px;
       border-radius: 19px;
     }
@@ -649,7 +878,10 @@ export const infinityStyles = css`
       font-size: 10px;
     }
     .stage {
-      margin: 7px auto 0;
+      /* Borrow the board padding; stay centered once the stage width caps. */
+      width: min(calc(100% + 20px), var(--infinity-stage-width, 460px));
+      margin: 7px 0 0;
+      margin-inline: max(-10px, calc((100% - var(--infinity-stage-width, 460px)) / 2));
     }
     .pool {
       grid-template-columns: repeat(5, minmax(0, 1fr));

@@ -107,8 +107,8 @@ export function InfinityDemo() {
         </label>
       </div>
       {motion === "auto" && systemReduced && <p className="loto-footnote" role="status">
-        Thiết bị đang giảm chuyển động. Chọn “Bật hoạt ảnh” rồi “Xem lại cú búng”
-        để xem chuyển động ngón tay.
+        Thiết bị đang giảm chuyển động nên cú búng hiện dạng tư thế tĩnh. Chọn
+        “Bật hoạt ảnh” rồi “Xem lại cú búng” để xem ngón tay chuyển động.
       </p>}
       <p className="loto-footnote">
         Sáu hốc có thứ tự rõ ràng; mỗi đá số có thể lấy lặp lại. Cú búng bắt đầu

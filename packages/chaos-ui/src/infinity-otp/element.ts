@@ -18,6 +18,7 @@ import { OtpAudio } from "../otp-audio.js";
 import { gloveArtwork } from "./glove.js";
 import { gemSvg } from "./gem.js";
 import { failedEmoji } from "./failed-emoji.js";
+import { ashFlakes } from "./ash.js";
 import { infinityStyles } from "./styles.js";
 
 /** Shared OTP options with six fixed sockets; `length` is intentionally unavailable.
@@ -36,6 +37,8 @@ type Drag = OtpSelection & {
 const digits: OtpDigit[] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 const sourceColors = ["#baa6e4", "#93c9e6", "#e1afd2", "#d4bf8a", "#8ad8c3"] as const;
 const SNAP_DURATION_MS = 2100;
+// Reduced motion keeps a short, still snap pose instead of finger movement.
+const STILL_SNAP_DURATION_MS = 900;
 type SnapPhase = "idle" | "playing" | "finished";
 const words = {
   vi: {
@@ -129,7 +132,7 @@ export class ChaosInfinityOtpElement
   declare disabled: boolean;
   /** Default false; allows focus but blocks edits/submit. @example glove.readOnly = true; */
   declare readOnly: boolean;
-  /** Host verification state; default idle. Submit starts the snap; success/error appears after it finishes. @example glove.status = 'success'; */
+  /** Host verification state; default idle. Submit starts the snap (a still pose under reduced motion); success/error appears after it finishes. @example glove.status = 'success'; */
   declare status: OtpStatus;
   /** Host feedback as plain text; default ''. @example glove.message = 'Try again'; */
   declare message: string;
@@ -259,10 +262,6 @@ export class ChaosInfinityOtpElement
   }
   private startSnap(reveal = false) {
     this.cancelSnap();
-    if (this.motionOff) {
-      this.snapPhase = "finished";
-      return;
-    }
     // Submit is below the glove. Reveal it before the first frame, including
     // when the host is inside a scrolling panel. Host-only updates never scroll.
     if (reveal)
@@ -272,7 +271,10 @@ export class ChaosInfinityOtpElement
         behavior: "instant",
       });
     this.snapPhase = "playing";
-    this.snapTimer = setTimeout(() => this.finishSnap(), SNAP_DURATION_MS);
+    this.snapTimer = setTimeout(
+      () => this.finishSnap(),
+      this.motionOff ? STILL_SNAP_DURATION_MS : SNAP_DURATION_MS,
+    );
   }
   /** Silently clear slots and cancel effects/drag; host also sets status to idle.
    * @example glove.reset(); glove.status = 'idle';
@@ -522,7 +524,7 @@ export class ChaosInfinityOtpElement
       class="board ${state ?? "idle"} ${complete ? "complete" : ""} ${this
         .motionOff
         ? "no-motion"
-        : ""}"
+        : ""} ${this.snapPhase === "finished" ? "snap-done" : ""}"
       aria-label=${t.title}
       aria-busy=${this.status === "verifying" || this.snapPhase === "playing"}
       @pointermove=${this.pointerMove}
@@ -537,10 +539,69 @@ export class ChaosInfinityOtpElement
       </header>
       <div part="stage" class="stage" @dragstart=${this.preventNativeDrag}>
         <div class="halo" aria-hidden="true"></div>
-        ${gloveArtwork}
+        <div class="rig">
+          ${gloveArtwork}
+          <div part="sockets" class="sockets" role="group" aria-label=${t.title}>
+            ${values.map(
+              (digit, index) =>
+                html`<div class="socket-wrap pos-${index + 1}">
+                  ${this.mode === "input"
+                    ? html`${order(index)}<input
+                        part="socket input"
+                        class="socket input"
+                        data-slot=${index}
+                        aria-label=${label(index)}
+                        aria-describedby="hint result"
+                        type="text"
+                        inputmode="numeric"
+                        autocomplete=${index === 0 ? "one-time-code" : "off"}
+                        maxlength="6"
+                        .value=${live(digit ?? "")}
+                        ?disabled=${this.disabled || this.status === "verifying"}
+                        ?readonly=${this.readOnly}
+                        @input=${(e: Event) => this.input(index, e)}
+                        @change=${(e: Event) => e.stopPropagation()}
+                        @paste=${(e: ClipboardEvent) => this.paste(index, e)}
+                        @keydown=${(e: KeyboardEvent) => this.keySocket(index, e)}
+                      />`
+                    : html`<button
+                        type="button"
+                        part="socket"
+                        class="socket ${digit !== null ? "filled" : ""} ${this
+                          .selection?.source === index
+                          ? "selected"
+                          : ""}"
+                        data-slot=${index}
+                        aria-label=${label(index)}
+                        aria-describedby="hint result"
+                        aria-pressed=${this.selection?.source === index}
+                        ?disabled=${this.disabled || this.status === "verifying"}
+                        aria-disabled=${this.readOnly}
+                        @click=${(e: MouseEvent) => this.clickSocket(index, e)}
+                        @keydown=${(e: KeyboardEvent) => this.keySocket(index, e)}
+                        @paste=${(e: ClipboardEvent) => this.paste(index, e)}
+                        @pointerdown=${(e: PointerEvent) => {
+                          if (digit !== null)
+                            this.pointerDown({ digit, source: index }, e);
+                        }}
+                      >
+                        ${order(index)}
+                        ${digit === null ? nothing : gemSvg(index)}
+                        <span class="gem-shape" aria-hidden="true"
+                          >${["✦", "✧", "✳", "◇", "✶", "✴"][index]}</span
+                        >
+                        <span class="socket-digit">${digit ?? "·"}</span>
+                      </button>`}
+                </div>`,
+            )}
+          </div>
+          <span class="snap-flash" aria-hidden="true"></span>
+          ${state === "snapping"
+            ? html`<span part="snap-impact" class="snap-impact" aria-hidden="true"></span>`
+            : nothing}
+        </div>
         ${state === "snapping"
-          ? html`<span part="snap-impact" class="snap-impact" aria-hidden="true"></span>
-              <span part="snap-caption" class="snap-caption" aria-hidden="true">${t.badge}</span>`
+          ? html`<span part="snap-caption" class="snap-caption" aria-hidden="true">${t.badge}</span>`
           : nothing}
         ${state === "error"
           ? html`<div class="failed-reaction" aria-hidden="true">
@@ -548,69 +609,8 @@ export class ChaosInfinityOtpElement
               <span part="failed-snap" class="failed-snap">${t.failedSnap}</span>
             </div>`
           : nothing}
-        <div part="sockets" class="sockets" role="group" aria-label=${t.title}>
-          ${values.map(
-            (digit, index) =>
-              html`<div class="socket-wrap pos-${index + 1}">
-                ${this.mode === "input"
-                  ? html`${order(index)}<input
-                      part="socket input"
-                      class="socket input"
-                      data-slot=${index}
-                      aria-label=${label(index)}
-                      aria-describedby="hint result"
-                      type="text"
-                      inputmode="numeric"
-                      autocomplete=${index === 0 ? "one-time-code" : "off"}
-                      maxlength="6"
-                      .value=${live(digit ?? "")}
-                      ?disabled=${this.disabled || this.status === "verifying"}
-                      ?readonly=${this.readOnly}
-                      @input=${(e: Event) => this.input(index, e)}
-                      @change=${(e: Event) => e.stopPropagation()}
-                      @paste=${(e: ClipboardEvent) => this.paste(index, e)}
-                      @keydown=${(e: KeyboardEvent) => this.keySocket(index, e)}
-                    />`
-                  : html`<button
-                      type="button"
-                      part="socket"
-                      class="socket ${digit !== null ? "filled" : ""} ${this
-                        .selection?.source === index
-                        ? "selected"
-                        : ""}"
-                      data-slot=${index}
-                      aria-label=${label(index)}
-                      aria-describedby="hint result"
-                      aria-pressed=${this.selection?.source === index}
-                      ?disabled=${this.disabled || this.status === "verifying"}
-                      aria-disabled=${this.readOnly}
-                      @click=${(e: MouseEvent) => this.clickSocket(index, e)}
-                      @keydown=${(e: KeyboardEvent) => this.keySocket(index, e)}
-                      @paste=${(e: ClipboardEvent) => this.paste(index, e)}
-                      @pointerdown=${(e: PointerEvent) => {
-                        if (digit !== null)
-                          this.pointerDown({ digit, source: index }, e);
-                      }}
-                    >
-                      ${order(index)}
-                      ${digit === null ? nothing : gemSvg(index)}
-                      <span class="gem-shape" aria-hidden="true"
-                        >${["✦", "✧", "✳", "◇", "✶", "✴"][index]}</span
-                      >
-                      <span class="socket-digit">${digit ?? "·"}</span>
-                    </button>`}
-              </div>`,
-          )}
-        </div>
         ${state === "success"
-          ? html`<div part="dust" class="dust" aria-hidden="true">
-              ${Array.from(
-                { length: 24 },
-                (_, i) => html`<i
-                  style=${`--i:${i};--x:${16 + ((i * 37) % 69)}%;--y:${19 + ((i * 47) % 62)}%;--dx:${((i * 31) % 161) - 80}px;--dy:${-90 - ((i * 17) % 90)}px`}
-                ></i>`,
-              )}
-            </div>`
+          ? html`<div part="dust" class="dust" aria-hidden="true">${ashFlakes}</div>`
           : nothing}
       </div>
       ${this.mode === "game"
