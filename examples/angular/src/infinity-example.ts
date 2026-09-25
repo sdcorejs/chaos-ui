@@ -16,7 +16,7 @@ import {
     <p>
       Tín hiệu vừa nhận: <strong>001122</strong>. Ứng dụng mẫu kiểm tra mã sau
       khi búng tay. Sáu hốc trên giáp tay giữ thứ tự 01–06; kéo viên đá hoặc nhãn số để đổi chỗ.
-      Khi xác nhận, găng được đưa vào tầm nhìn rồi búng: hai ngón chạm rồi bật ra, sau đó
+      Khi xác nhận, găng được đưa vào tầm nhìn rồi búng: ngón cái ép ngón giữa rồi bật ra, đá vẫn gắn trên găng, sau đó
       mới hiện kết quả. Sai mã chỉ hiện emoji ngạc nhiên; đúng mã thì lớp trò
       chơi tan thành bụi trong chốc lát. Nút xem lại không gửi OTP lần nữa.
     </p>

@@ -1,9 +1,37 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import type { ChaosInfinityOtpElement } from "../../packages/chaos-ui/dist/infinity-otp.js";
 
 // These tests record uninterrupted playback. Never seek animations or screenshot
 // a locator: locator screenshots scroll the glove into view and hide the bug.
 test.use({ video: "on" });
+
+// The thumb pivots at its base: ~56° while pressed on the middle finger,
+// negative while it flicks outward after the release.
+const thumbAngle = (game: Locator) =>
+  game.locator(".f-thumb").evaluate((el) => {
+    const m = new DOMMatrix(getComputedStyle(el).transform);
+    return (Math.atan2(m.b, m.a) * 180) / Math.PI;
+  });
+
+// Records the thumb's extreme angles every frame inside the page. The release
+// flick lasts ~0.4 s, shorter than a slow CI screenshot or poll round trip.
+const sampleThumb = (game: Locator) =>
+  game.evaluate((host) => {
+    const thumb = host.shadowRoot!.querySelector(".f-thumb")!;
+    let min = 0, max = 0;
+    const tick = () => {
+      const m = new DOMMatrix(getComputedStyle(thumb).transform);
+      const angle = (Math.atan2(m.b, m.a) * 180) / Math.PI;
+      min = Math.min(min, angle);
+      max = Math.max(max, angle);
+      host.dataset.thumbMin = String(min);
+      host.dataset.thumbMax = String(max);
+      if (host.isConnected) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+const thumbExtreme = async (game: Locator, name: "thumbMin" | "thumbMax") =>
+  Number(await game.evaluate((host, key) => host.dataset[key] ?? "0", name));
 
 async function openInfinity(page: Page) {
   await page.goto("http://127.0.0.1:5173/");
@@ -32,19 +60,21 @@ test("Infinity real submit and replay keep the moving fingertips inside the view
   const submit = game.getByRole("button", { name: "Búng tay", exact: true });
   await submit.evaluate((el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
   expect((await stage.boundingBox())!.y).toBeLessThan(0);
+  await sampleThumb(game);
   await submit.click();
   await expect(stage).toBeInViewport({ ratio: 0.99, timeout: 800 });
-  await expect.poll(() => game.locator(".glove-contact").evaluate((el) => getComputedStyle(el).opacity), { timeout: 1400, intervals: [30] }).toBe("1");
-  await page.screenshot({ path: testInfo.outputPath("visible-contact.png") });
-  await expect.poll(() => game.locator(".glove-release").evaluate((el) => getComputedStyle(el).opacity), { timeout: 1600, intervals: [30] }).toBe("1");
+  // Contact, then the outward flick, both while the whole stage stays visible.
+  await expect.poll(() => thumbExtreme(game, "thumbMax"), { timeout: 1400 }).toBeGreaterThan(45);
   await expect(stage).toBeInViewport({ ratio: 0.99 });
-  await page.screenshot({ path: testInfo.outputPath("visible-release.png") });
+  await expect.poll(() => thumbExtreme(game, "thumbMin"), { timeout: 2000 }).toBeLessThan(-3);
+  await expect(stage).toBeInViewport({ ratio: 0.99 });
+  await page.screenshot({ path: testInfo.outputPath("visible-after-release.png") });
   await expect(game.locator(".board")).toHaveClass(/success/);
   const replay = game.getByRole("button", { name: "Xem lại cú búng" });
   await replay.evaluate((el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
   await replay.click();
   await expect(stage).toBeInViewport({ ratio: 0.99, timeout: 800 });
-  await expect.poll(() => game.locator(".glove-contact").evaluate((el) => getComputedStyle(el).opacity), { timeout: 1400, intervals: [30] }).toBe("1");
+  await expect.poll(() => thumbAngle(game), { timeout: 1400, intervals: [30] }).toBeGreaterThan(45);
   await expect(game).toHaveAttribute("data-submits", "1");
   await expect(game).toHaveAttribute("data-changes", "0");
 });
@@ -81,7 +111,7 @@ test("Infinity explicit motion opt-in overrides a reduced-motion system setting"
   await expect(game.locator(".board")).not.toHaveClass(/no-motion/);
   await game.getByRole("button", { name: "Búng tay", exact: true }).click();
   await expect(game.locator(".board")).toHaveClass(/snapping/);
-  await expect.poll(() => game.locator(".glove-contact").evaluate((el) => getComputedStyle(el).opacity), { timeout: 1400, intervals: [30] }).toBe("1");
+  await expect.poll(() => thumbAngle(game), { timeout: 1400, intervals: [30] }).toBeGreaterThan(45);
   await expect(game.locator(".stage")).toBeInViewport({ ratio: 0.99 });
   await page.getByRole("combobox", { name: "Chuyển động" }).selectOption("always");
   await expect(game.locator(".board")).toHaveClass(/no-motion/);
