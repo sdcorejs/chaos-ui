@@ -13,6 +13,26 @@ const thumbAngle = (game: Locator) =>
     return (Math.atan2(m.b, m.a) * 180) / Math.PI;
   });
 
+// Records the thumb's extreme angles every frame inside the page. The release
+// flick lasts ~0.4 s, shorter than a slow CI screenshot or poll round trip.
+const sampleThumb = (game: Locator) =>
+  game.evaluate((host) => {
+    const thumb = host.shadowRoot!.querySelector(".f-thumb")!;
+    let min = 0, max = 0;
+    const tick = () => {
+      const m = new DOMMatrix(getComputedStyle(thumb).transform);
+      const angle = (Math.atan2(m.b, m.a) * 180) / Math.PI;
+      min = Math.min(min, angle);
+      max = Math.max(max, angle);
+      host.dataset.thumbMin = String(min);
+      host.dataset.thumbMax = String(max);
+      if (host.isConnected) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+const thumbExtreme = async (game: Locator, name: "thumbMin" | "thumbMax") =>
+  Number(await game.evaluate((host, key) => host.dataset[key] ?? "0", name));
+
 async function openInfinity(page: Page) {
   await page.goto("http://127.0.0.1:5173/");
   await page.getByRole("button", { name: /Infinity OTP/ }).first().click();
@@ -40,13 +60,15 @@ test("Infinity real submit and replay keep the moving fingertips inside the view
   const submit = game.getByRole("button", { name: "Búng tay", exact: true });
   await submit.evaluate((el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
   expect((await stage.boundingBox())!.y).toBeLessThan(0);
+  await sampleThumb(game);
   await submit.click();
   await expect(stage).toBeInViewport({ ratio: 0.99, timeout: 800 });
-  await expect.poll(() => thumbAngle(game), { timeout: 1400, intervals: [30] }).toBeGreaterThan(45);
-  await page.screenshot({ path: testInfo.outputPath("visible-contact.png") });
-  await expect.poll(() => thumbAngle(game), { timeout: 1600, intervals: [20] }).toBeLessThan(-3);
+  // Contact, then the outward flick, both while the whole stage stays visible.
+  await expect.poll(() => thumbExtreme(game, "thumbMax"), { timeout: 1400 }).toBeGreaterThan(45);
   await expect(stage).toBeInViewport({ ratio: 0.99 });
-  await page.screenshot({ path: testInfo.outputPath("visible-release.png") });
+  await expect.poll(() => thumbExtreme(game, "thumbMin"), { timeout: 2000 }).toBeLessThan(-3);
+  await expect(stage).toBeInViewport({ ratio: 0.99 });
+  await page.screenshot({ path: testInfo.outputPath("visible-after-release.png") });
   await expect(game.locator(".board")).toHaveClass(/success/);
   const replay = game.getByRole("button", { name: "Xem lại cú búng" });
   await replay.evaluate((el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
